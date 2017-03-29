@@ -44,6 +44,18 @@ void error_log(int pCode, string tCode){
     }
 }
 
+void switchThreads()
+{
+    // case it is terminated?
+    if(_runningThread != nullptr)
+    {
+        //update the blocked threads that are synced to _running thread
+        _readyThreads.push_back(_runningThread);
+    }
+    _runningThread = _readyThreads.pop_front();
+
+
+}
 
 int resolveId(){
     int id = 1;
@@ -134,8 +146,21 @@ int uthread_init(int quantum_usecs){
     spThread* main = new spThread(nullptr, 0);
     _threads.insert(tPair(0, main));
     _runningThread = main;
-    main->setStatus(RUNNING);
+    main -> setStatus(RUNNING);
     quantom_overall++;
+
+    _segActions.sa_handler = &switchThreads;
+
+
+    _itTimer.it_value.tv_sec = 0;		// first time interval, seconds part
+    _itTimer.it_value.tv_usec = quantum_usecs;		// first time interval, microseconds part
+    // configure the timer to expire every 3 sec after that.
+    _itTimer.it_interval.tv_sec = 0;	// following time intervals, seconds part
+    _itTimer.it_interval.tv_usec = quantum_usecs;	// following time intervals, microseconds part
+    if (setitimer (ITIMER_VIRTUAL, &_itTimer, NULL)) {
+        printf("setitimer error.");
+    }
+
     return SUCC;
 }
 
@@ -299,7 +324,7 @@ int uthread_get_total_quantums(){
  * Return value: On success, return the number of quantums of the thread with ID tid. On failure, return -1.
 */
 int uthread_get_quantums(int tid){
-    spThread *thread = getThreadById(tid)
+    spThread *thread = getThreadById(tid);
     if(thread == nullptr){
         return FAIL;
     }
