@@ -278,8 +278,7 @@ int uthread_block(int tid){
     _blockThreads.push_back(thread);
     unblockSignal();
     if(tid == _runningThread->tid()){
-        // in case thread blocks himself
-        //TODO Rescheduele
+       //blocking itself
     }
     return SUCC;
 }
