@@ -15,7 +15,8 @@
 #define SUCC 0
 #define FAIL -1
 
-#define QUANTUM_USEC "Quantum value should be bigger than 0"
+#define QUANTUM_USEC "Quantum value should be bigger than 0."
+#define SIZE_LIMIT "We have reached the limit of 100 threads."
 
 #define tPair pair<int, spThread*>
 /*
@@ -33,6 +34,7 @@ static spThread* _runningThread;
 static int quantom_overall = 0;
 struct itimerval _itTimer;
 struct sigaction _segActions;
+
 
 void error_log(int pCode, string tCode){
     switch(pCode){
@@ -105,6 +107,14 @@ void unblockSignal(){
     return;
 }
 
+void reSyncBlocked(int tid){
+    for(auto &k : _blockThreads){
+        if(k->reSync(tid)){
+            removeThreadFromBlocks(k);
+        }
+    }
+}
+
 
 
 
@@ -153,8 +163,8 @@ int uthread_spawn(void (*f)(void)){
     blockSignal();
     int nId = resolveId();
     // cannot allocate id
-    if(nId == -1 || _threads.size() == 100){
-        cout << "exit on spawning for thread id : "<< nId << endl;
+    if(nId == -1 || _threads.size() == SIZE_MAX){
+        error_log(INPUT_ERR, SIZE_LIMIT);
         return FAIL;
     }
     spThread *tThread = new spThread(f, nId);
