@@ -41,6 +41,11 @@ struct itimerval _itTimer;
 struct sigaction _segActions;
 
 
+void blockSignal();
+void unblockSignal();
+void reSyncBlocked(int tid);
+
+
 void error_log(int pCode, string tCode){
     switch(pCode){
         case INPUT_ERR:
@@ -60,12 +65,13 @@ void switchThreads(int code)
     // case it is terminated?
     if(_runningThread != nullptr)
     {
-        sigsetjump(_runningThread->_env, 1);// 1 is to be able to load it back on
+        _runningThread->saveBuffer();// 1 is to be able to load it back on
         _readyThreads.push_back(_runningThread);
     }
-    _runningThread = _readyThreads.pop_front();
+    _runningThread = *_readyThreads.begin();
+    _readyThreads.erase(_readyThreads.begin());
     reSyncBlocked(_runningThread->tid());
-    siglongjmp(_runningThread -> _env, 1);
+    _runningThread->loadBuffer();
     if (setitimer (ITIMER_VIRTUAL, &_itTimer, NULL)) {
         error_log(FATAL_ERR,"setitimer error.");
     }
@@ -125,14 +131,14 @@ void removeThreadFromBlocks(spThread* thread){
 
 
 void blockSignal(){
-    sigemptyset(&set);
-    sigaddset(&set, SIGVTALRM);
-    sigprocmask(SIG_SETMASK, &set, NULL);       //block ^^^ signals from now on
+    sigemptyset(&_set);
+    sigaddset(&_set, SIGVTALRM);
+    sigprocmask(SIG_SETMASK, &_set, NULL);       //block ^^^ signals from now on
     return;
 }
 
 void unblockSignal(){
-    sigprocmask(SIG_UNBLOCK, &set, NULL);       //unblock signals
+    sigprocmask(SIG_UNBLOCK, &_set, NULL);       //unblock signals
     return;
 }
 
