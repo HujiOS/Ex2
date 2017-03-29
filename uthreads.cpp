@@ -36,6 +36,7 @@ static vector<spThread*> _readyThreads;
 static vector<spThread*> _blockThreads;
 static spThread* _runningThread;
 static int quantom_overall = 0;
+static sigset_t _set;
 struct itimerval _itTimer;
 struct sigaction _segActions;
 
@@ -53,17 +54,22 @@ void error_log(int pCode, string tCode){
     }
 }
 
-void switchThreads()
+void switchThreads(int code)
 {
+    blockSignal();
     // case it is terminated?
     if(_runningThread != nullptr)
     {
-        //update the blocked threads that are synced to _running thread
+        sigsetjump(_runningThread->_env, 1);// 1 is to be able to load it back on
         _readyThreads.push_back(_runningThread);
     }
     _runningThread = _readyThreads.pop_front();
-
-
+    reSyncBlocked(_runningThread->tid());
+    siglongjmp(_runningThread -> _env, 1);
+    if (setitimer (ITIMER_VIRTUAL, &_itTimer, NULL)) {
+        error_log(FATAL_ERR,"setitimer error.");
+    }
+    unblockSignal();
 }
 
 int resolveId(){
@@ -119,10 +125,14 @@ void removeThreadFromBlocks(spThread* thread){
 
 
 void blockSignal(){
+    sigemptyset(&set);
+    sigaddset(&set, SIGVTALRM);
+    sigprocmask(SIG_SETMASK, &set, NULL);       //block ^^^ signals from now on
     return;
 }
 
 void unblockSignal(){
+    sigprocmask(SIG_UNBLOCK, &set, NULL);       //unblock signals
     return;
 }
 
@@ -174,8 +184,9 @@ int uthread_init(int quantum_usecs){
     // configure the timer to expire every 3 sec after that.
     _itTimer.it_interval.tv_sec = 0;	// following time intervals, seconds part
     _itTimer.it_interval.tv_usec = quantum_usecs;	// following time intervals, microseconds part
+
     if (setitimer (ITIMER_VIRTUAL, &_itTimer, NULL)) {
-        printf("setitimer error.");
+        error_log(FATAL_ERR,"setitimer error.");
     }
 
     return SUCC;
