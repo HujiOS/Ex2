@@ -160,11 +160,6 @@ public:
         return false;
     }
 
-    void release(){
-        _status = WAITING;
-        _relies_on = -1;
-    }
-
     int tid(){
         return _tid;
     }

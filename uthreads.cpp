@@ -11,11 +11,16 @@
 #define ERR_TITLE "uthreads.cpp : "
 
 #define INPUT_ERR 0
+#define FATAL_ERR 1
 
 #define SUCC 0
 #define FAIL -1
 
-#define QUANTUM_USEC "Quantum value should be bigger than 0"
+#define QUANTUM_USEC "Quantum value should be bigger than 0."
+#define SIZE_LIMIT "We have reached the limit of 100 threads."
+#define THREAD_NFOUND "Cannot find thread with the given tid."
+#define STOP_MAIN "You cannot do this action on the main thread."
+#define SYNC_ITSELF "A Thread cannot sync to itself"
 
 #define tPair pair<int, spThread*>
 /*
@@ -34,10 +39,14 @@ static int quantom_overall = 0;
 struct itimerval _itTimer;
 struct sigaction _segActions;
 
+
 void error_log(int pCode, string tCode){
     switch(pCode){
         case INPUT_ERR:
             cerr << ERR_TITLE << "Input error:" << tCode << endl;
+            break;
+        case FATAL_ERR:
+            cerr << ERR_TITLE << "Fatal error:" << tCode << endl;
             break;
         default:
             break;
@@ -74,7 +83,7 @@ int resolveId(){
 }
 
 
-int uthread_terminate(){
+int mainthread_terminate(){
     for(auto thread : _threads){
         delete(thread);
     }
@@ -115,6 +124,14 @@ void blockSignal(){
 
 void unblockSignal(){
     return;
+}
+
+void reSyncBlocked(int tid){
+    for(auto &k : _blockThreads){
+        if(k->reSync(tid)){
+            removeThreadFromBlocks(k);
+        }
+    }
 }
 
 
@@ -178,8 +195,8 @@ int uthread_spawn(void (*f)(void)){
     blockSignal();
     int nId = resolveId();
     // cannot allocate id
-    if(nId == -1 || _threads.size() == 100){
-        cout << "exit on spawning for thread id : "<< nId << endl;
+    if(nId == -1 || _threads.size() == SIZE_MAX){
+        error_log(INPUT_ERR, SIZE_LIMIT);
         return FAIL;
     }
     spThread *tThread = new spThread(f, nId);
@@ -202,15 +219,17 @@ int uthread_spawn(void (*f)(void)){
  * thread is terminated, the function does not return.
 */
 int uthread_terminate(int tid){
-    blockSignal();
     if(tid == 0){
-        uthread_terminate();
+        mainthread_terminate();
         _exit(0);
     }
     spThread* thread = getThreadById(tid);
     if(thread == nullptr){
+        error_log(INPUT_ERR, THREAD_NFOUND);
         return FAIL;
     }
+    blockSignal();
+    reSyncBlocked(tid);
     _threads.erase(tid);
     removeThreadFromBlocks(thread);
     delete(thread);
@@ -231,12 +250,16 @@ int uthread_terminate(int tid){
 int uthread_block(int tid){
     // check if this thread exists
     spThread* thread = getThreadById(tid);
-    if(thread == nullptr || tid == 0){
+    if(thread == nullptr){
+        return FAIL;
+    }
+    if(tid == 0){
+        error_log(FATAL_ERR, STOP_MAIN);
         return FAIL;
     }
     // remove the block from ready and from block lists.
     blockSignal();
-    thread->block(-1);
+    thread->block();
     removeThreadFromBlocks(thread);
     _blockThreads.push_back(thread);
     unblockSignal();
@@ -257,13 +280,15 @@ int uthread_block(int tid){
 int uthread_resume(int tid){
     spThread* thread = getThreadById(tid);
     if(thread == nullptr){
+        error_log(INPUT_ERR,THREAD_NFOUND);
         return FAIL;
     }
     // remove the block from ready and from block lists.
     blockSignal();
-    thread->release();
-    removeThreadFromBlocks(thread);
-    _readyThreads.push_back(thread);
+    if(thread->unblock()){
+        removeThreadFromBlocks(thread);
+        _readyThreads.push_back(thread);
+    }
     unblockSignal();
     return SUCC;
 }
@@ -282,12 +307,21 @@ int uthread_resume(int tid){
 */
 int uthread_sync(int tid){
     spThread* thread = getThreadById(tid);
-    _runningThread->block(tid);
-    if(thread == nullptr || _runningThread->tid() == 0){
+    if(thread == nullptr){
+        error_log(INPUT_ERR,THREAD_NFOUND);
+        return FAIL;
+    }
+    if(_runningThread->tid() == 0){
+        error_log(FATAL_ERR,STOP_MAIN);
+        return FAIL;
+    }
+    if(_runningThread->tid() == tid){
+        error_log(FATAL_ERR,SYNC_ITSELF);
         return FAIL;
     }
     // remove the block from ready and from block lists.
     blockSignal();
+    _runningThread->sync(tid);
     _readyThreads.push_back(_runningThread);
     // TODO SCHEDUELING DECISION
     unblockSignal();
@@ -326,6 +360,7 @@ int uthread_get_total_quantums(){
 int uthread_get_quantums(int tid){
     spThread *thread = getThreadById(tid);
     if(thread == nullptr){
+        error_log(INPUT_ERR,THREAD_NFOUND);
         return FAIL;
     }
     return thread->tid();
