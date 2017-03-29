@@ -12,8 +12,6 @@
 #define SECOND 1000000
 #define STACK_SIZE 4096
 
-char stack1[STACK_SIZE];
-char stack2[STACK_SIZE];
 
 sigjmp_buf env[2];
 
@@ -123,6 +121,21 @@ public:
         _relies_on = tid;
         _status = BLOCKED;
     }
+
+    void block(int tid){
+        _status = BLOCKED;
+        _relies_on = tid;
+    }
+
+    void release(){
+        _status = WAITING;
+        _relies_on = -1;
+    }
+
+    int tid(){
+        return _tid;
+    }
+
 
     void setStatus(int status){
         _status = status;
