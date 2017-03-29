@@ -1,7 +1,8 @@
 //
 // Created by Omer on 24/03/2017.
 //
-
+#ifndef SPTHREAD_H
+#define SPTHREAD_H
 #include <stdio.h>
 #include <setjmp.h>
 #include <signal.h>
@@ -27,15 +28,15 @@ typedef unsigned long address_t;
 #define JB_PC 7
 /* A translation is required when using an address of a variable.
    Use this as a black box in your code. */
-//address_t translate_address(address_t addr)
-//{
-//    address_t ret;
-//    asm volatile("xor    %%fs:0x30,%0\n"
-//            "rol    $0x11,%0\n"
-//    : "=g" (ret)
-//    : "0" (addr));
-//    return ret;
-//}
+address_t trans_address(address_t addr)
+{
+    address_t ret;
+    asm volatile("xor    %%fs:0x30,%0\n"
+            "rol    $0x11,%0\n"
+    : "=g" (ret)
+    : "0" (addr));
+    return ret;
+}
 
 #else
 /* code for 32 bit Intel arch */
@@ -46,7 +47,7 @@ typedef unsigned int address_t;
 
 /* A translation is required when using an address of a variable.
    Use this as a black box in your code. */
-address_t translate_address(address_t addr)
+address_t trans_address(address_t addr)
 {
 	address_t ret;
 	asm volatile("xor    %%gs:0x18,%0\n"
@@ -72,8 +73,8 @@ public:
         sp = (address_t)_stack + STACK_SIZE - sizeof(address_t);
         pc = (address_t)f;
         sigsetjmp(_env, ARBITARY_VAL);
-//        (_env->__jmpbuf)[JB_SP] = translate_address(sp);
-//        (_env->__jmpbuf)[JB_PC] = translate_addressz(pc);
+        (_env->__jmpbuf)[JB_SP] = trans_address(sp);
+        (_env->__jmpbuf)[JB_PC] = trans_address(pc);
         sigemptyset(&_env->__saved_mask);
     }
 
@@ -168,3 +169,4 @@ private:
     char _stack[STACK_SIZE];
     int _tid;
 };
+#endif
