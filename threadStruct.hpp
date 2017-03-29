@@ -74,7 +74,7 @@ public:
      * creating new thread, the lower block of code was taken as is from demo_jmp.c
      * on windows I C syntax error..
      */
-    spThread(void (*f)(void), int tid):_relies_on(-1),_status(WAITING),_quant(0),_tid(tid){
+    spThread(void (*f)(void), int tid):_relies_on(-1),_status(WAITING),_quant(0),_tid(tid),_blocked(false){
         address_t sp, pc;
         _stack = new char[STACK_SIZE];
         _needs_me = new int[DEP_SIZE];
@@ -122,9 +122,42 @@ public:
         _status = BLOCKED;
     }
 
-    void block(int tid){
+    void sync(int tid){
         _status = BLOCKED;
         _relies_on = tid;
+    }
+    /*
+     * this function return true if status changed
+     * false otherwise
+     */
+    bool reSync(int tid){
+        if(_relies_on == tid){
+            _relies_on = -1;
+            if(_blocked){
+                return false;
+            }
+            _status = WAITING;
+            return true;
+        }
+        return false;
+    }
+
+    void block(){
+        _status = BLOCKED;
+        _blocked = true;
+    }
+
+    /*
+     * this function return true if status changed
+     * false otherwise
+     */
+    bool unblock(){
+        _blocked = false;
+        if(_relies_on == -1){
+            _status = WAITING;
+            return true;
+        }
+        return false;
     }
 
     void release(){
@@ -144,6 +177,7 @@ public:
 private:
     int _status;
     int _relies_on;
+    bool _blocked;
     sigjmp_buf _env;
     int _quant;
     int* _needs_me;
