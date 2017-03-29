@@ -9,30 +9,33 @@
 #include <sys/time.h>
 #include <array>
 
+
 #define SECOND 1000000
 #define STACK_SIZE 4096
-
-
-sigjmp_buf env[2];
+#define ARBITARY_VAL 1
+#define RUNNING 0
+#define WAITING 1
+#define BLOCKED 2
+#define ENDED 0
+#define PREEMPTED 1
+using namespace std;
+#define DEP_SIZE 100
 
 #ifdef __x86_64__
-/* code for 64 bit Intel arch */
-
 typedef unsigned long address_t;
 #define JB_SP 6
 #define JB_PC 7
-
 /* A translation is required when using an address of a variable.
    Use this as a black box in your code. */
-address_t translate_address(address_t addr)
-{
-    address_t ret;
-    asm volatile("xor    %%fs:0x30,%0\n"
-            "rol    $0x11,%0\n"
-    : "=g" (ret)
-    : "0" (addr));
-    return ret;
-}
+//address_t translate_address(address_t addr)
+//{
+//    address_t ret;
+//    asm volatile("xor    %%fs:0x30,%0\n"
+//            "rol    $0x11,%0\n"
+//    : "=g" (ret)
+//    : "0" (addr));
+//    return ret;
+//}
 
 #else
 /* code for 32 bit Intel arch */
@@ -45,27 +48,15 @@ typedef unsigned int address_t;
    Use this as a black box in your code. */
 address_t translate_address(address_t addr)
 {
-    address_t ret;
-    asm volatile("xor    %%gs:0x18,%0\n"
-		"rol    $0x9,%0\n"
-                 : "=g" (ret)
-                 : "0" (addr));
-    return ret;
+	address_t ret;
+	asm volatile("xor    %%gs:0x18,%0\n"
+			"rol    $0x9,%0\n"
+			: "=g" (ret)
+			  : "0" (addr));
+	return ret;
 }
 
-
 #endif
-
-#define ARBITARY_VAL 1
-#define RUNNING 0
-#define WAITING 1
-#define BLOCKED 2
-#define ENDED 0
-#define PREEMPTED 1
-using namespace std;
-#define DEP_SIZE 100
-
-
 
 
 class spThread{
@@ -76,14 +67,13 @@ public:
      */
     spThread(void (*f)(void), int tid):_relies_on(-1),_status(WAITING),_quant(0),_tid(tid),_blocked(false){
         address_t sp, pc;
-        _stack = new char[STACK_SIZE];
         _needs_me = new int[DEP_SIZE];
 
         sp = (address_t)_stack + STACK_SIZE - sizeof(address_t);
         pc = (address_t)f;
         sigsetjmp(_env, ARBITARY_VAL);
-        (_env->__jmpbuf)[JB_SP] = translate_address(sp);
-        (_env->__jmpbuf)[JB_PC] = translate_address(pc);
+//        (_env->__jmpbuf)[JB_SP] = translate_address(sp);
+//        (_env->__jmpbuf)[JB_PC] = translate_addressz(pc);
         sigemptyset(&_env->__saved_mask);
     }
 
@@ -91,7 +81,6 @@ public:
      * small simple deleter
      */
     ~spThread(){
-        delete[](_stack);
         delete[](_needs_me);
     }
 
@@ -176,6 +165,6 @@ private:
     sigjmp_buf _env;
     int _quant;
     int* _needs_me;
-    char* _stack;
+    char _stack[STACK_SIZE];
     int _tid;
 };

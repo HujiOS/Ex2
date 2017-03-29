@@ -164,9 +164,6 @@ int uthread_init(int quantum_usecs){
         error_log(INPUT_ERR, QUANTUM_USEC);
         return FAIL;
     }
-//    we should define the calls handler here
-//    _segActions.sa_handler
-
 
 //  init var
     // creating the main thread and adding it to the list
