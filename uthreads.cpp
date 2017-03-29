@@ -78,20 +78,18 @@ void switchThreads(int code)
     unblockSignal();
 }
 
-int resolveId(){
-    int id = 1;
-    try {
-        for (; id < 101; ++id) {
-            if (_threads.at(id) != nullptr) {
-                return id;
-            }
+int resolveId()
+{
+    int idToReturn = 0;
+    for (map<int, spThread*>::iterator iter = _threads.begin(); iter != _threads.end();
+         idToReturn++, iter++)
+    {
+        if (iter->first != idToReturn)
+        {
+            break;
         }
     }
-    catch (out_of_range){
-        return id;
-    }
-    // cant find the next id somehow..
-    return -1;
+    return idToReturn;
 }
 
 
@@ -214,9 +212,11 @@ int uthread_spawn(void (*f)(void)){
         return FAIL;
     }
     spThread *tThread = new spThread(f, nId);
-    _threads.insert(tPair(nId,tThread));
+    cout<<nId<<"\n";
+    _threads.insert(tPair(nId, tThread));
     _readyThreads.push_back(tThread);
     unblockSignal();
+    cout << "Size : "<<_threads.size()<<endl;
     return SUCC;
 }
 
