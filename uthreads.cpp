@@ -48,7 +48,7 @@ void error_log(int pCode, string tCode){
 int resolveId(){
     int id = 1;
     try {
-        for (id; id < 101; id++) {
+        for (; id < 101; ++id) {
             if (_threads.at(id) != nullptr) {
                 return id;
             }
@@ -211,7 +211,7 @@ int uthread_block(int tid){
     }
     // remove the block from ready and from block lists.
     blockSignal();
-    thread->block(tid);
+    thread->block(-1);
     removeThreadFromBlocks(thread);
     _blockThreads.push_back(thread);
     unblockSignal();
@@ -267,5 +267,42 @@ int uthread_sync(int tid){
     // TODO SCHEDUELING DECISION
     unblockSignal();
     return SUCC;
+}
+
+/*
+ * Description: This function returns the thread ID of the calling thread.
+ * Return value: The ID of the calling thread.
+*/
+int uthread_get_tid(){
+    return _runningThread->tid();
+}
+
+/*
+ * Description: This function returns the total number of quantums that were
+ * started since the library was initialized, including the current quantum.
+ * Right after the call to uthread_init, the value should be 1.
+ * Each time a new quantum starts, regardless of the reason, this number
+ * should be increased by 1.
+ * Return value: The total number of quantums.
+*/
+int uthread_get_total_quantums(){
+    return quantom_overall;
+}
+
+/*
+ * Description: This function returns the number of quantums the thread with
+ * ID tid was in RUNNING state. On the first time a thread runs, the function
+ * should return 1. Every additional quantum that the thread starts should
+ * increase this value by 1 (so if the thread with ID tid is in RUNNING state
+ * when this function is called, include also the current quantum). If no
+ * thread with ID tid exists it is considered as an error.
+ * Return value: On success, return the number of quantums of the thread with ID tid. On failure, return -1.
+*/
+int uthread_get_quantums(int tid){
+    spThread *thread = getThreadById(tid)
+    if(thread == nullptr){
+        return FAIL;
+    }
+    return thread->tid();
 }
 
