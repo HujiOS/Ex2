@@ -53,7 +53,7 @@ void error_log(int pCode, string tCode){
     }
 }
 
-void switchThreads()
+void switchThreads(int sig)
 {
     // case it is terminated?
     if(_runningThread != nullptr)
@@ -61,7 +61,8 @@ void switchThreads()
         //update the blocked threads that are synced to _running thread
         _readyThreads.push_back(_runningThread);
     }
-    _runningThread = _readyThreads.pop_front();
+    _runningThread = *_readyThreads.begin();
+    _readyThreads.erase(_readyThreads.begin());
 
 
 }
@@ -85,7 +86,7 @@ int resolveId(){
 
 int mainthread_terminate(){
     for(auto thread : _threads){
-        delete(thread);
+        delete(thread.second);
     }
     return SUCC;
 }
@@ -322,7 +323,7 @@ int uthread_sync(int tid){
     // remove the block from ready and from block lists.
     blockSignal();
     _runningThread->sync(tid);
-    _readyThreads.push_back(_runningThread);
+    _blockThreads.push_back(_runningThread);
     // TODO SCHEDUELING DECISION
     unblockSignal();
     return SUCC;
