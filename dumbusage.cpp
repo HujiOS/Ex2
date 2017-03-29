@@ -8,7 +8,7 @@ void goo();
 void boo();
 void foo();
 int main(){
-    uthread_init(5000);
+    uthread_init(500);
     cout<<uthread_spawn(foo)<<endl;
     cout<<uthread_spawn(goo)<<endl;
     cout<<uthread_spawn(boo)<<endl;

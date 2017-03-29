@@ -61,6 +61,7 @@ void error_log(int pCode, string tCode){
 
 void switchThreads(int code)
 {
+    cout<<"in timer"<<endl;
     blockSignal();
     // case it is terminated?
     if(_runningThread != nullptr)
