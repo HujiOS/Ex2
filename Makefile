@@ -7,6 +7,8 @@ LIBOBJ=$(LIBSRC:.cpp=.o)
 INCS=-I.
 CFLAGS = -Wall -g $(INCS)
 LOADLIBES = -L./ 
+LFLAGS = -o
+
 
 THREADLIB = libuthreads.a
 
@@ -15,11 +17,14 @@ TARFLAGS=-cvf
 TARNAME=ex.tar
 TARSRCS=$(LIBSRC) Makefile README
 
-all: libuthreads.a
+all: dumbusage
 
 libuthreads.a: $(LIBOBJ)
 	$(AR) $(ARFLAGS) $@ $^
 	$(RANLIB) $@
+
+dumbusage: dumbusage.o libuthreads.a
+	$(CC) $^ $(LFLAGS) $@
 
 clean:
 	$(RM) $(TARGETS) $(THREADLIB) $(OBJ) $(LIBOBJ) *~ *core

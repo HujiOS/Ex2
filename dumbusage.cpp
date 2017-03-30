@@ -1,6 +1,4 @@
-//
-// Created by omer on 3/29/17.
-//
+
 
 #include <iostream>
 #include "uthreads.h"

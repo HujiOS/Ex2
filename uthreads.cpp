@@ -243,12 +243,19 @@ int uthread_terminate(int tid){
         error_log(INPUT_ERR, THREAD_NFOUND);
         return FAIL;
     }
+
+    if(_runningThread = thread)
+    {
+        _runningThread = nullptr;
+    }
+
     blockSignal();
     reSyncBlocked(tid);
     _threads.erase(tid);
     removeThreadFromBlocks(thread);
     delete(thread);
     unblockSignal();
+    switchThreads(0);   //Do we need the number? I think not. ##### A BETTER WAY TO DO THIS? SIGNALS?
     return SUCC;
 }
 
@@ -274,13 +281,13 @@ int uthread_block(int tid){
     }
     // remove the block from ready and from block lists.
     blockSignal();
-    thread->block();
+    thread -> block();
     removeThreadFromBlocks(thread);
     _blockThreads.push_back(thread);
-    unblockSignal();
     if(tid == _runningThread->tid()){
-       //blocking itself
+       switchThreads(0); //##### A BETTER WAY TO DO THIS? SIGNALS?
     }
+    unblockSignal();
     return SUCC;
 }
 
@@ -337,8 +344,9 @@ int uthread_sync(int tid){
     blockSignal();
     _runningThread->sync(tid);
     _blockThreads.push_back(_runningThread);
-    // TODO SCHEDUELING DECISION
+    switchThreads(0); //##### A BETTER WAY TO DO THIS? SIGNALS?
     unblockSignal();
+
     return SUCC;
 }
 
