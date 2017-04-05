@@ -23,11 +23,11 @@ libuthreads.a: $(LIBOBJ)
 	$(AR) $(ARFLAGS) $@ $^
 	$(RANLIB) $@
 
-dumbusage: dumbusage.o
+dumbusage: dumbusage.o libuthreads.a
 	$(CC) $^ $(LOADLIBES) -luthreads -o $@
 
 dumbusage.o: dumbusage.cpp
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) -c $^ -o $@
 
 threadStruct.o: threadStruct.cpp
 	$(CC) -c threadStruct.cpp -o threadStruct.o
