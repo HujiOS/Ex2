@@ -2,20 +2,6 @@
 
 #include <iostream>
 #include "uthreads.h"
-void goo();
-void boo();
-void foo();
-int main(){
-    uthread_init(500);
-    cout<<uthread_spawn(foo)<<endl;
-    cout<<uthread_spawn(goo)<<endl;
-    cout<<uthread_spawn(boo)<<endl;
-    for(;;){
-        pause();
-    }
-}
-
-
 
 void foo(){
     int i = 0;
@@ -38,3 +24,15 @@ void goo() {
         cout << "in goo" << endl;
     }
 }
+
+int main(){
+    uthread_init(500);
+    cout<<uthread_spawn(&foo)<<endl;
+    cout<<uthread_spawn(&goo)<<endl;
+    cout<<uthread_spawn(&boo)<<endl;
+    for(;;){
+        pause();
+    }
+}
+
+

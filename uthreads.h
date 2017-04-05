@@ -10,6 +10,7 @@
 #define STACK_SIZE 4096 /* stack size per thread (in bytes) */
 
 #include "threadStruct.hpp"
+
 /* External interface */
 
 

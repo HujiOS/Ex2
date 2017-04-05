@@ -26,17 +26,6 @@ using namespace std;
 typedef unsigned long address_t;
 #define JB_SP 6
 #define JB_PC 7
-/* A translation is required when using an address of a variable.
-   Use this as a black box in your code. */
-address_t trans_address(address_t addr)
-{
-    address_t ret;
-    asm volatile("xor    %%fs:0x30,%0\n"
-            "rol    $0x11,%0\n"
-    : "=g" (ret)
-    : "0" (addr));
-    return ret;
-}
 
 #else
 /* code for 32 bit Intel arch */
@@ -47,21 +36,12 @@ typedef unsigned int address_t;
 
 /* A translation is required when using an address of a variable.
    Use this as a black box in your code. */
-address_t trans_address(address_t addr)
-{
-	address_t ret;
-	asm volatile("xor    %%gs:0x18,%0\n"
-			"rol    $0x9,%0\n"
-			: "=g" (ret)
-			  : "0" (addr));
-	return ret;
-}
 
 #endif
 
-
 class spThread{
 public:
+    static address_t trans_address(address_t addr);
     /*
      * creating new thread, the lower block of code was taken as is from demo_jmp.c
      * on windows I C syntax error..
@@ -88,85 +68,50 @@ public:
     /**
      * after running function, saving the location of the function
      */
-    int saveBuffer(){
-        return sigsetjmp(_env,ARBITARY_VAL);
-    }
+    int saveBuffer();
 
     /**
      * increase the quants and running the thread again
      */
-    void loadBuffer(){
-        _quant++;
-        siglongjmp(_env,ARBITARY_VAL);
-    }
+    void loadBuffer();
     /**
      * getter for status
      */
-    int getStatus(){
-        return _status;
-    }
+    int getStatus();
     // we can assume that there is no two dependency for specific thread
     // cause after we are calling sync we should stop the thread
-    void setDep(int tid){
-        _relies_on = tid;
-        _status = BLOCKED;
-    }
+    void setDep(int tid);
 
-    void sync(int tid){
-        _status = BLOCKED;
-        _relies_on = tid;
-    }
+    void sync(int tid);
     /*
      * this function return true if status changed
      * false otherwise
      */
-    bool reSync(int tid){
-        if(_relies_on == tid){
-            _relies_on = -1;
-            if(_blocked){
-                return false;
-            }
-            _status = WAITING;
-            return true;
-        }
-        return false;
-    }
+    bool reSync(int tid);
 
-    void block(){
-        _status = BLOCKED;
-        _blocked = true;
-    }
+    void block();
 
     /*
      * this function return true if status changed
      * false otherwise
      */
-    bool unblock(){
-        _blocked = false;
-        if(_relies_on == -1){
-            _status = WAITING;
-            return true;
-        }
-        return false;
-    }
+    bool unblock();
 
-    int tid(){
-        return _tid;
-    }
+    int tid();
 
 
-    void setStatus(int status){
-        _status = status;
-    }
+    void setStatus(int status);
 
 private:
-    int _status;
     int _relies_on;
+    int _status;
+    int _quant;
+    int _tid;
     bool _blocked;
     sigjmp_buf _env;
-    int _quant;
     int* _needs_me;
     char _stack[STACK_SIZE];
-    int _tid;
+
 };
+
 #endif

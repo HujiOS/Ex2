@@ -1,8 +1,8 @@
 CC=g++
 RANLIB=ranlib
 
-LIBSRC=uthreads.cpp threadStruct.hpp
-LIBOBJ=$(LIBSRC:.cpp=.o)
+LIBSRC=uthreads.cpp threadStruct.hpp threadStruct.cpp
+LIBOBJ=uthreads.o threadStruct.o
 
 INCS=-I.
 CFLAGS = -Wall -g $(INCS)
@@ -23,8 +23,15 @@ libuthreads.a: $(LIBOBJ)
 	$(AR) $(ARFLAGS) $@ $^
 	$(RANLIB) $@
 
-dumbusage: dumbusage.o libuthreads.a
-	$(CC) $^ $(LFLAGS) $@
+dumbusage: dumbusage.o
+	$(CC) $^ $(LOADLIBES) -luthreads -o $@
+
+dumbusage.o: dumbusage.cpp
+	$(CC) $(CFLAGS) $^ -o $@
+
+threadStruct.o: threadStruct.cpp
+	$(CC) -c threadStruct.cpp -o threadStruct.o
+
 
 clean:
 	$(RM) $(TARGETS) $(THREADLIB) $(OBJ) $(LIBOBJ) *~ *core
