@@ -77,6 +77,7 @@ void switchThreads(int code)
         _readyThreads.push_back(_runningThread);
     }
     _runningThread = *_readyThreads.begin();
+    cout << "tid : " << _runningThread->tid() << " Is running" << endl;
     _readyThreads.erase(_readyThreads.begin());
     reSyncBlocked(_runningThread->tid());
     _runningThread->loadBuffer();
@@ -84,6 +85,7 @@ void switchThreads(int code)
         error_log(FATAL_ERR,"setitimer error.");
     }
     unblockSignal();
+    cout << "loaded successfuly" << endl;
 }
 
 int resolveId()
