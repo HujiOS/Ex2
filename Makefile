@@ -14,11 +14,10 @@ THREADLIB = libuthreads.a
 
 TAR=tar
 TARFLAGS=-cvf
-TARNAME=ex.tar
+TARNAME=ex2.tar
 TARSRCS=$(LIBSRC) Makefile README
 
-all: dumbusage
-	dumbusage
+all: dumbusage tara runtest
 
 libuthreads.a: $(LIBOBJ)
 	$(AR) $(ARFLAGS) $@ $^
@@ -40,7 +39,8 @@ clean:
 depend:
 	makedepend -- $(CFLAGS) -- $(SRC) $(LIBSRC)
 
-tar:
+tara:
 	$(TAR) $(TARFLAGS) $(TARNAME) $(TARSRCS)
 
-
+runtest:
+	cp -f ex2.tar ex2sanity
