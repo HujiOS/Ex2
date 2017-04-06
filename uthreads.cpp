@@ -269,7 +269,7 @@ int uthread_terminate(int tid){
     removeThreadFromBlocks(thread);
     delete(thread);
     unblockSignal();
-    switchThreads(0);   //Do we need the number? I think not. ##### A BETTER WAY TO DO THIS? SIGNALS?
+    raise(SIGVTALRM);//switchThreads(0);   //Do we need the number? I think not. ##### A BETTER WAY TO DO THIS? SIGNALS?
     return SUCC;
 }
 
@@ -299,7 +299,7 @@ int uthread_block(int tid){
     removeThreadFromBlocks(thread);
     _blockThreads.push_back(thread);
     if(tid == _runningThread->tid()){
-       switchThreads(1); //##### A BETTER WAY TO DO THIS? SIGNALS?
+       raise(SIGVTALRM);//switchThreads(1); //##### A BETTER WAY TO DO THIS? SIGNALS?
     }
     unblockSignal();
     return SUCC;
@@ -358,7 +358,7 @@ int uthread_sync(int tid){
     blockSignal();
     _runningThread->sync(tid);
     _blockThreads.push_back(_runningThread);
-    switchThreads(0); //##### A BETTER WAY TO DO THIS? SIGNALS?
+    raise(SIGVTALRM);//switchThreads(0); //##### A BETTER WAY TO DO THIS? SIGNALS?
     unblockSignal();
 
     return SUCC;
