@@ -33,10 +33,10 @@ test: test.o libuthreads.a
 	$(CC) $^ $(LOADLIBES) -luthreads -o $@
 
 test.o: test.cpp
-	$(CC) -c $^ -o $@
+	$(CC) -g $^ -o $@
 
 threadStruct.o: threadStruct.cpp
-	$(CC) -c threadStruct.cpp -o threadStruct.o
+	$(CC) -g threadStruct.cpp -o threadStruct.o
 
 clean:
 	$(RM) $(TARGETS) $(THREADLIB) $(OBJ) $(LIBOBJ) *~ *core

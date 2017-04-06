@@ -245,29 +245,29 @@ int main(void)
 				std::cout << "m" << tid << " Quanta:" <<  i << std::endl;
 				if (i == 3)
 				{
-//					std::cout << "m spawns f at (1) " << uthread_spawn(f) << std::endl;
-//					std::cout << "m spawns g at (2) " << uthread_spawn(g) << std::endl;
+					std::cout << "m spawns f at (1) " << uthread_spawn(f) << std::endl;
+					std::cout << "m spawns g at (2) " << uthread_spawn(g) << std::endl;
 				}
 				if (i == 10)
 				{
-//					std::cout << "m spawns d at (1) " << uthread_spawn(d) << std::endl;
-//					std::cout << "m spawns dblock at (2) " << uthread_spawn(dblock) << std::endl;
+					std::cout << "m spawns d at (1) " << uthread_spawn(d) << std::endl;
+					std::cout << "m spawns dblock at (2) " << uthread_spawn(dblock) << std::endl;
 				}
 				if(i==26){
-//					std::cout << "m spawns aSync at (1) " << uthread_spawn(aSync) << std::endl;
-//					std::cout << "m spawns a at (2) " << uthread_spawn(a) << std::endl;
-//					std::cout << "m spawns f at (3) " << uthread_spawn(f) << std::endl;
-//					std::cout << "m spawns g at (4) " << uthread_spawn(g) << std::endl;
+					std::cout << "m spawns aSync at (1) " << uthread_spawn(aSync) << std::endl;
+					std::cout << "m spawns a at (2) " << uthread_spawn(a) << std::endl;
+					std::cout << "m spawns f at (3) " << uthread_spawn(f) << std::endl;
+					std::cout << "m spawns g at (4) " << uthread_spawn(g) << std::endl;
 				}
 				if(i==46){
-//					std::cout << "m spawns bSync at (1) " << uthread_spawn(bSync) << std::endl;
-//					std::cout << "m spawns b at (2) " << uthread_spawn(b) << std::endl;
-//					std::cout << "m spawns bblock at (3) " << uthread_spawn(bblock) << std::endl;
+					std::cout << "m spawns bSync at (1) " << uthread_spawn(bSync) << std::endl;
+					std::cout << "m spawns b at (2) " << uthread_spawn(b) << std::endl;
+					std::cout << "m spawns bblock at (3) " << uthread_spawn(bblock) << std::endl;
 				}
 				if(i > 64 && i < 165){
-					uthread_spawn(dummyf);
+//					uthread_spawn(dummyf);
 				}
-				if (i == 166)
+				if (i == 64)
 				{
 					std::cout << "Total Quantums: " << uthread_get_total_quantums() << std::endl;
 					uthread_terminate(tid);
