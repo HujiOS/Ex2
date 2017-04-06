@@ -46,9 +46,9 @@ public:
      * creating new thread, the lower block of code was taken as is from demo_jmp.c
      * on windows I C syntax error..
      */
-    spThread(void (*f)(void), int tid):_relies_on(-1),_status(WAITING),_quant(0),_tid(tid),_blocked(false){
+    spThread(void (*f)(void), int tid):_relies_on(-1),_status(WAITING),_tid(tid),_blocked(false){
         address_t sp, pc;
-
+        _quant = 0;
         sp = (address_t)_stack + STACK_SIZE - sizeof(address_t);
         pc = (address_t)f;
         sigsetjmp(_env, ARBITARY_VAL);
@@ -103,6 +103,11 @@ public:
      * returns the tid of the current thread
      */
     int tid();
+
+    /*
+     * return the number of qunatoms that passed
+     */
+    int getQuant();
 
 private:
     // represent the tid that this thread synced to it.

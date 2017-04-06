@@ -115,5 +115,9 @@ int spThread::tid(){
     return _tid;
 }
 
+int spThread::getQuant(){
+    return _quant;
+}
+
 
 #endif

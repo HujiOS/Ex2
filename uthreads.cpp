@@ -87,13 +87,13 @@ void error_log(int pCode, string tCode){
 
 void switchThreads(int code)
 {
-    cout << "begin switch" << endl;
-    printStatus();
+//    cout << "begin switch" << endl;
+//    printStatus();
 
     quantom_overall++;
 
 
-    cout<<"in timer"<<endl;
+//    cout<<"in timer"<<endl;
     blockSignal();
     // case it is terminated?
     if(_runningThread != nullptr)
@@ -102,7 +102,7 @@ void switchThreads(int code)
         _readyThreads.push_back(_runningThread);
     }
     _runningThread = *_readyThreads.begin();
-    cout << "tid : " << _runningThread->tid() << " Is running" << endl;
+//    cout << "tid : " << _runningThread->tid() << " Is running" << endl;
     _readyThreads.erase(_readyThreads.begin());
     reSyncBlocked(_runningThread->tid());
     _runningThread->loadBuffer();
@@ -110,8 +110,8 @@ void switchThreads(int code)
         error_log(FATAL_ERR,"setitimer error.");
     }
     unblockSignal();
-    printStatus();
-    cout << "loaded successfuly" << endl;
+//    printStatus();
+//    cout << "loaded successfuly" << endl;
 }
 
 int resolveId()
@@ -139,10 +139,10 @@ int mainthread_terminate(){
 spThread* getThreadById(int tid){
     map<int, spThread*>::iterator it = _threads.find(tid);
     if(it == _threads.end()){
-        cout <<  "not found! " << tid << endl;
+//        cout <<  "not found! " << tid << endl;
         return nullptr;
     }
-    cout <<  "found! " << it->first << endl;
+//    cout <<  "found! " << it->first << endl;
     return it->second;
 }
 
@@ -428,6 +428,6 @@ int uthread_get_quantums(int tid){
         error_log(INPUT_ERR,THREAD_NFOUND);
         return FAIL;
     }
-    return thread->tid();
+    return thread->getQuant();
 }
 

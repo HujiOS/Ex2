@@ -1,7 +1,7 @@
 CC=g++
 RANLIB=ranlib
 
-LIBSRC=uthreads.cpp threadStruct.hpp threadStruct.cpp
+LIBSRC=uthreads.cpp uthreads.h threadStruct.hpp threadStruct.cpp
 LIBOBJ=uthreads.o threadStruct.o
 
 INCS=-I.
@@ -17,8 +17,7 @@ TARFLAGS=-cvf
 TARNAME=ex2.tar
 TARSRCS=$(LIBSRC) Makefile README
 
-all: dumbusage
-	dumbusage
+all: test tara ctest
 
 libuthreads.a: $(LIBOBJ)
 	$(AR) $(ARFLAGS) $@ $^
@@ -30,9 +29,14 @@ dumbusage: dumbusage.o libuthreads.a
 dumbusage.o: dumbusage.cpp
 	$(CC) -c $^ -o $@
 
+test: test.o libuthreads.a
+	$(CC) $^ $(LOADLIBES) -luthreads -o $@
+
+test.o: test.cpp
+	$(CC) -c $^ -o $@
+
 threadStruct.o: threadStruct.cpp
 	$(CC) -c threadStruct.cpp -o threadStruct.o
-
 
 clean:
 	$(RM) $(TARGETS) $(THREADLIB) $(OBJ) $(LIBOBJ) *~ *core
@@ -43,5 +47,8 @@ depend:
 tara:
 	$(TAR) $(TARFLAGS) $(TARNAME) $(TARSRCS)
 
-runtest:
+ctest:
 	cp -f ex2.tar ex2sanity
+
+rtest:
+	python3 ex2sanity/test.py
