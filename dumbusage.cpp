@@ -2,37 +2,45 @@
 
 #include <iostream>
 #include "uthreads.h"
-
+int f = 0;
+int g = 0;
+int b = 0;
 void foo(){
     int i = 0;
-    while(i<100){
-        cout << "in foo" << endl;
+    while (i < 3) {
+        cout << "in goo" << endl;
+        usleep(900);
         ++i;
-        sleep(900);
     }
+    uthread_terminate(f);
 }
 
 void boo(){
-    while(1){
-        cout << "in boo" << endl;
-        sleep(900);
+    int i = 0;
+    while (i < 3) {
+        cout << "in goo" << endl;
+        usleep(900);
+        ++i;
     }
+    uthread_terminate(b);
 }
 
 void goo() {
-    while (1) {
+    int i = 0;
+    while (i < 3) {
         cout << "in goo" << endl;
-        sleep(900);
+        usleep(900);
+        ++i;
     }
+    uthread_terminate(g);
 }
 
 int main(){
-    uthread_init(1000);
-    cout<<uthread_spawn(&foo)<<endl;
-    cout<<uthread_spawn(&goo)<<endl;
-    cout<<uthread_spawn(&boo)<<endl;
-    while(1){
-
+    uthread_init(5000);
+    f = uthread_spawn(&foo);
+    g = uthread_spawn(&goo);
+    b = uthread_spawn(&boo);
+    for(;;){
     }
 }
 
