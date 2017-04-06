@@ -115,9 +115,5 @@ int spThread::tid(){
     return _tid;
 }
 
-void spThread::setStatus(int status){
-    _status = status;
-}
-
 
 #endif

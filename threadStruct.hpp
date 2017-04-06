@@ -48,7 +48,6 @@ public:
      */
     spThread(void (*f)(void), int tid):_relies_on(-1),_status(WAITING),_quant(0),_tid(tid),_blocked(false){
         address_t sp, pc;
-        _needs_me = new int[DEP_SIZE];
 
         sp = (address_t)_stack + STACK_SIZE - sizeof(address_t);
         pc = (address_t)f;
@@ -61,9 +60,7 @@ public:
     /**
      * small simple deleter
      */
-    ~spThread(){
-        delete[](_needs_me);
-    }
+    ~spThread(){}
 
     /**
      * after running function, saving the location of the function
@@ -78,17 +75,22 @@ public:
      * getter for status
      */
     int getStatus();
+
     // we can assume that there is no two dependency for specific thread
     // cause after we are calling sync we should stop the thread
     void setDep(int tid);
 
     void sync(int tid);
     /*
-     * this function return true if status changed
+     * this function return true if status changed (if the thread wasnt blocked) by thread.block()
      * false otherwise
      */
     bool reSync(int tid);
 
+    /*
+     * this function blocking the current Thread
+     * it raise the flag "blocked"
+     */
     void block();
 
     /*
@@ -97,19 +99,31 @@ public:
      */
     bool unblock();
 
+    /*
+     * returns the tid of the current thread
+     */
     int tid();
 
-
-    void setStatus(int status);
-
 private:
+    // represent the tid that this thread synced to it.
     int _relies_on;
+
+    // represent the current thread status
     int _status;
+
+    // represent the number of quant that I have runned so far
     int _quant;
+
+    // represent the thread thread Id
     int _tid;
+
+    // bool says if im blocked or not.
     bool _blocked;
+
+    // saving the environment (stack pointer and pc pointer)
     sigjmp_buf _env;
-    int* _needs_me;
+
+    // represent the stack location for this thread
     char _stack[STACK_SIZE];
 
 };
