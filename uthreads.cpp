@@ -216,12 +216,11 @@ int uthread_spawn(void (*f)(void)){
         return FAIL;
     }
     spThread *tThread = new spThread(f, nId);
-    cout<<nId<<"\n";
     _threads.insert(tPair(nId, tThread));
     _readyThreads.push_back(tThread);
     unblockSignal();
     cout << "Size : "<<_threads.size()<<endl;
-    return SUCC;
+    return nId;
 }
 
 

@@ -38,8 +38,9 @@ void goo() {
 int main(){
     uthread_init(5000);
     f = uthread_spawn(&foo);
-    g = uthread_spawn(&goo);
-    b = uthread_spawn(&boo);
+    b = uthread_spawn(&foo);
+    g = uthread_spawn(&foo);
+    cout << f << b << g << endl;
     for(;;){
     }
 }
