@@ -232,7 +232,7 @@ int uthread_init(int quantum_usecs){
 //    if (sigaction(SIGHUP, &_segActions,NULL) < 0) {
 //        printf("sigaction error.");
 //    }
-
+    raise(SIGVTALRM);
     return SUCC;
 }
 
@@ -258,7 +258,7 @@ int uthread_spawn(void (*f)(void)){
     _threads.insert(tPair(nId, tThread));
     _readyThreads.push_back(tThread);
     unblockSignal();
-    cout << "Size : "<<_threads.size()<<endl;
+//    cout << "Size : "<<_threads.size()<<endl;
     return nId;
 }
 
@@ -276,7 +276,7 @@ int uthread_spawn(void (*f)(void)){
  * thread is terminated, the function does not return.
 */
 int uthread_terminate(int tid){
-    cout << "Terminating " << tid << endl;
+//    cout << "Terminating " << tid << endl;
     if(tid == 0){
         mainthread_terminate();
         _exit(0);
