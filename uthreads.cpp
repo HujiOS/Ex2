@@ -310,7 +310,7 @@ int uthread_resume(int tid){
     }
     // remove the block from ready and from block lists.
     blockSignal();
-    if(thread->unblock()){
+    if(thread -> unblock()){
         removeThreadFromBlocks(thread);
         _readyThreads.push_back(thread);
     }

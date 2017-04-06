@@ -18,6 +18,7 @@ TARNAME=ex.tar
 TARSRCS=$(LIBSRC) Makefile README
 
 all: dumbusage
+	dumbusage
 
 libuthreads.a: $(LIBOBJ)
 	$(AR) $(ARFLAGS) $@ $^
