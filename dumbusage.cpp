@@ -8,20 +8,21 @@ void foo(){
     while(i<100){
         cout << "in foo" << endl;
         ++i;
+        sleep(900);
     }
-    uthread_sync(3);
-    foo();
 }
 
 void boo(){
     while(1){
         cout << "in boo" << endl;
+        sleep(900);
     }
 }
 
 void goo() {
     while (1) {
         cout << "in goo" << endl;
+        sleep(900);
     }
 }
 
