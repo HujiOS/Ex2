@@ -213,7 +213,6 @@ int uthread_init(int quantum_usecs){
     _threads.insert(tPair(0, main));
     _runningThread = main;
 //    main -> setStatus(RUNNING);
-    quantom_overall++;
 
     _segActions.sa_handler = &switchThreads;
 
