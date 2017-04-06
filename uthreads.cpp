@@ -104,7 +104,7 @@ void switchThreads(int code)
     _runningThread = *_readyThreads.begin();
 //    cout << "tid : " << _runningThread->tid() << " Is running" << endl;
     _readyThreads.erase(_readyThreads.begin());
-    reSyncBlocked(_runningThread->tid());
+    reSyncBlocked(_runningThread -> tid());
     _runningThread->loadBuffer();
     if (setitimer (ITIMER_VIRTUAL, &_itTimer, NULL)) {
         error_log(FATAL_ERR,"setitimer error.");
@@ -250,7 +250,7 @@ int uthread_spawn(void (*f)(void)){
     blockSignal();
     int nId = resolveId();
     // cannot allocate id
-    if(nId == -1 || _threads.size() == SIZE_MAX){
+    if(nId == -1 || _threads.size() == MAX_THREAD_NUM){
         error_log(INPUT_ERR, SIZE_LIMIT);
         return FAIL;
     }

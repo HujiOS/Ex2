@@ -17,7 +17,8 @@ TARFLAGS=-cvf
 TARNAME=ex2.tar
 TARSRCS=$(LIBSRC) Makefile README
 
-all: test tara ctest
+all: dumbusage
+	dumbusage
 
 libuthreads.a: $(LIBOBJ)
 	$(AR) $(ARFLAGS) $@ $^
