@@ -39,7 +39,7 @@ static int quantom_overall = 0;
 static sigset_t _set;
 struct itimerval _itTimer;
 struct sigaction _segActions;
-
+static bool isblocked = false;
 
 void blockSignal();
 void unblockSignal();
@@ -162,6 +162,11 @@ void removeThreadFromBlocks(spThread* thread){
 
 
 void blockSignal(){
+    if(isblocked)
+    {
+        return;
+    }
+    isblocked = true;
     sigemptyset(&_set);
     sigaddset(&_set, SIGVTALRM);
     sigprocmask(SIG_SETMASK, &_set, NULL);       //block ^^^ signals from now on
@@ -169,6 +174,11 @@ void blockSignal(){
 }
 
 void unblockSignal(){
+    if(!isblocked)
+    {
+        return;
+    }
+    isblocked = false;
     sigprocmask(SIG_UNBLOCK, &_set, NULL);       //unblock signals
     return;
 }
