@@ -45,7 +45,9 @@ void blockSignal();
 void unblockSignal();
 void reSyncBlocked(int tid);
 
-
+void pauseMain(void){
+    for(;;){}
+}
 void printStatus()
 {
     cout << "all threads:" << endl;
@@ -121,9 +123,13 @@ int resolveId()
 
 
 int mainthread_terminate(){
+//    printStatus();
+    cout << "main terminate " << endl;
     for(auto thread : _threads){
-        delete(thread.second);
+        cout << thread.first << "\t";
+        delete thread.second;
     }
+    cout << "========" << endl;
     return SUCC;
 }
 
@@ -200,7 +206,7 @@ int uthread_init(int quantum_usecs){
 
 //  init var
     // creating the main thread and adding it to the list
-    spThread* main = new spThread(nullptr, 0);
+    spThread* main = new spThread(&pauseMain, 0);
     _threads.insert(tPair(0, main));
     _runningThread = main;
 //    main -> setStatus(RUNNING);
@@ -246,10 +252,11 @@ int uthread_spawn(void (*f)(void)){
         return FAIL;
     }
     spThread *tThread = new spThread(f, nId);
+    cout << "SPAWNED" << endl;
+    cout << tThread << endl;
     _threads.insert(tPair(nId, tThread));
     _readyThreads.push_back(tThread);
     unblockSignal();
-//    cout << "Size : "<<_threads.size()<<endl;
     return nId;
 }
 
@@ -286,7 +293,9 @@ int uthread_terminate(int tid){
     reSyncBlocked(tid);
     _threads.erase(tid);
     removeThreadFromBlocks(thread);
-    delete(thread);
+    cout << "TERMINATED" << endl;
+    cout << thread << endl;
+    delete thread;
     unblockSignal();
     raise(SIGVTALRM);//switchThreads(0);   //Do we need the number? I think not. ##### A BETTER WAY TO DO THIS? SIGNALS?
     return SUCC;

@@ -33,10 +33,10 @@ test: test.o libuthreads.a
 	$(CC) $^ $(LOADLIBES) -luthreads -o $@
 
 test.o: test.cpp
-	$(CC) -g $^ -o $@
+	$(CC) -c $^ -o $@
 
 threadStruct.o: threadStruct.cpp
-	$(CC) -g threadStruct.cpp -o threadStruct.o
+	$(CC) -c threadStruct.cpp -o threadStruct.o
 
 clean:
 	$(RM) $(TARGETS) $(THREADLIB) $(OBJ) $(LIBOBJ) *~ *core
@@ -52,3 +52,7 @@ ctest:
 
 rtest:
 	python3 ex2sanity/test.py
+
+val:
+	valgrind --show-leak-kinds=all --leak-check=full test
+

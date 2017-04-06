@@ -50,7 +50,7 @@ address_t spThreads::trans_address(address_t addr)
  * after running function, saving the location of the function
  */
 int spThread::saveBuffer(){
-    return sigsetjmp(_env,ARBITARY_VAL);
+    return sigsetjmp(_env,ARBITARY_VAL); // 0 if returns from saving, 1 if returning from longjmp.
 }
 
 /**
