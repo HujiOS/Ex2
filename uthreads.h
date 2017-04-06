@@ -13,7 +13,7 @@
 
 /* External interface */
 
-
+void printStatus();
 /*
  * Description: This function initializes the thread library. 
  * You may assume that this function is called before any other thread library
