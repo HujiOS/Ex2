@@ -7,9 +7,9 @@ int g = 0;
 int b = 0;
 void foo(){
     int i = 0;
-    while (i < 3) {
-        cout << "in goo" << endl;
-        usleep(900);
+    while (i < 35) {
+        cout << "in foo" << endl;
+        sleep(1);
         ++i;
     }
     uthread_terminate(f);
@@ -17,9 +17,9 @@ void foo(){
 
 void boo(){
     int i = 0;
-    while (i < 3) {
-        cout << "in goo" << endl;
-        usleep(900);
+    while (i < 35) {
+        cout << "in boo" << endl;
+        sleep(1);
         ++i;
     }
     uthread_terminate(b);
@@ -27,19 +27,19 @@ void boo(){
 
 void goo() {
     int i = 0;
-    while (i < 3) {
+    while (i < 35) {
         cout << "in goo" << endl;
-        usleep(900);
+        sleep(1);
         ++i;
     }
     uthread_terminate(g);
 }
 
 int main(){
-    uthread_init(5000);
+    uthread_init(1);
     f = uthread_spawn(&foo);
-    b = uthread_spawn(&foo);
-    g = uthread_spawn(&foo);
+    b = uthread_spawn(&goo);
+    g = uthread_spawn(&boo);
     cout << f << b << g << endl;
     for(;;){
     }

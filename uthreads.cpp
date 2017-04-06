@@ -104,8 +104,10 @@ int mainthread_terminate(){
 spThread* getThreadById(int tid){
     map<int, spThread*>::iterator it = _threads.find(tid);
     if(it == _threads.end()){
+        cout <<  "not found! " << tid << endl;
         return nullptr;
     }
+    cout <<  "found! " << it->first << endl;
     return it->second;
 }
 
@@ -239,6 +241,7 @@ int uthread_spawn(void (*f)(void)){
  * thread is terminated, the function does not return.
 */
 int uthread_terminate(int tid){
+    cout << "Terminating " << tid << endl;
     if(tid == 0){
         mainthread_terminate();
         _exit(0);
