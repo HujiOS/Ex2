@@ -46,6 +46,32 @@ void unblockSignal();
 void reSyncBlocked(int tid);
 
 
+void printStatus()
+{
+    cout << "all threads:" << endl;
+    for(auto thread:_threads)
+    {
+        cout << thread.first << " ";
+    }
+
+
+    cout << "in ready:" << endl;
+    for(auto rthread:_readyThreads)
+    {
+        cout << rthread -> tid() << endl;
+    }
+
+    cout << "in blocked: " << endl;
+    for(auto bthread:_blockThreads)
+    {
+        cout << bthread -> tid() << endl;
+    }
+
+    cout << "overall times: " << quantom_overall << endl;
+    cout << "running thread: " << _runningThread->tid() << endl;
+
+}
+
 void error_log(int pCode, string tCode){
     switch(pCode){
         case INPUT_ERR:
@@ -61,13 +87,10 @@ void error_log(int pCode, string tCode){
 
 void switchThreads(int code)
 {
-    if(_readyThreads.size() == 0)
-    {
-        if (setitimer (ITIMER_VIRTUAL, &_itTimer, NULL)) {
-            error_log(FATAL_ERR,"setitimer error.");
-        }
-        return;
-    }
+    cout << "begin switch" << endl;
+    printStatus();
+
+
     cout<<"in timer"<<endl;
     blockSignal();
     // case it is terminated?
@@ -85,6 +108,7 @@ void switchThreads(int code)
         error_log(FATAL_ERR,"setitimer error.");
     }
     unblockSignal();
+    printStatus();
     cout << "loaded successfuly" << endl;
 }
 
@@ -236,6 +260,7 @@ int uthread_spawn(void (*f)(void)){
     cout << "Size : "<<_threads.size()<<endl;
     return nId;
 }
+
 
 
 /*
