@@ -26,12 +26,12 @@ void goo() {
 }
 
 int main(){
-    uthread_init(500);
+    uthread_init(1000);
     cout<<uthread_spawn(&foo)<<endl;
     cout<<uthread_spawn(&goo)<<endl;
     cout<<uthread_spawn(&boo)<<endl;
-    for(;;){
-        pause();
+    while(1){
+
     }
 }
 

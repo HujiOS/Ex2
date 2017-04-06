@@ -61,7 +61,7 @@ void error_log(int pCode, string tCode){
 
 void switchThreads(int code)
 {
-    cout<<"in timer"<<endl;
+//    cout<<"in timer"<<endl;
     blockSignal();
     // case it is terminated?
     if(_runningThread != nullptr)
@@ -189,6 +189,9 @@ int uthread_init(int quantum_usecs){
 
     if (setitimer (ITIMER_VIRTUAL, &_itTimer, NULL)) {
         error_log(FATAL_ERR,"setitimer error.");
+    }
+    if (sigaction(SIGVTALRM, &_segActions,NULL) < 0) {
+        printf("sigaction error.");
     }
 
     return SUCC;
