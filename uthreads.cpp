@@ -175,7 +175,7 @@ int uthread_init(int quantum_usecs){
     spThread* main = new spThread(nullptr, 0);
     _threads.insert(tPair(0, main));
     _runningThread = main;
-    main -> setStatus(RUNNING);
+//    main -> setStatus(RUNNING);
     quantom_overall++;
 
     _segActions.sa_handler = &switchThreads;
@@ -244,7 +244,7 @@ int uthread_terminate(int tid){
         return FAIL;
     }
 
-    if(_runningThread = thread)
+    if(_runningThread == thread)
     {
         _runningThread = nullptr;
     }
