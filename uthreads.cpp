@@ -61,6 +61,13 @@ void error_log(int pCode, string tCode){
 
 void switchThreads(int code)
 {
+    if(_readyThreads.size() == 0)
+    {
+        if (setitimer (ITIMER_VIRTUAL, &_itTimer, NULL)) {
+            error_log(FATAL_ERR,"setitimer error.");
+        }
+        return;
+    }
     cout<<"in timer"<<endl;
     blockSignal();
     // case it is terminated?
