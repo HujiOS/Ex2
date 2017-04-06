@@ -195,9 +195,9 @@ int uthread_init(int quantum_usecs){
     if (sigaction(SIGVTALRM, &_segActions,NULL) < 0) {
         printf("sigaction error.");
     }
-    if (sigaction(SIGHUP, &_segActions,NULL) < 0) {
-        printf("sigaction error.");
-    }
+//    if (sigaction(SIGHUP, &_segActions,NULL) < 0) {
+//        printf("sigaction error.");
+//    }
 
     return SUCC;
 }
@@ -262,7 +262,7 @@ int uthread_terminate(int tid){
     removeThreadFromBlocks(thread);
     delete(thread);
     unblockSignal();
-    raise(1);//switchThreads(0);   //Do we need the number? I think not. ##### A BETTER WAY TO DO THIS? SIGNALS?
+    switchThreads(0);   //Do we need the number? I think not. ##### A BETTER WAY TO DO THIS? SIGNALS?
     return SUCC;
 }
 
@@ -292,7 +292,7 @@ int uthread_block(int tid){
     removeThreadFromBlocks(thread);
     _blockThreads.push_back(thread);
     if(tid == _runningThread->tid()){
-       raise(1); //##### A BETTER WAY TO DO THIS? SIGNALS?
+       switchThreads(1); //##### A BETTER WAY TO DO THIS? SIGNALS?
     }
     unblockSignal();
     return SUCC;
