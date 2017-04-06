@@ -90,6 +90,8 @@ void switchThreads(int code)
     cout << "begin switch" << endl;
     printStatus();
 
+    quantom_overall++;
+
 
     cout<<"in timer"<<endl;
     blockSignal();
