@@ -1,0 +1,50 @@
+login1, bgalb
+Student Name1 (ID1), Gal Katzhendler(203165238)
+login2, omer
+Student Name2 (ID1), Omer Shacham(204034722)
+EX: 2
+
+FILES:
+README - this file
+Makefile - a file that helps to compile all of this
+threadStruct.cpp - a file that contain the single thread struct and basic commands
+threadStruct.hpp - a file that contain the single thread struct and headers
+uthreads.cpp - contain all the implementation to the single thread library.
+
+
+REMARKS:
+These are some remarks that
+I want the graders to know
+about this submission.
+
+ANSWERS:
+
+Task1:
+- create a multi-threaded task on arduino micro-controller.
+when im trying to write a program to my small arduino, a program that combine more than one sensor
+I will prefer to use user-thread system.
+
+the advantage overhere is that the os doesnt support kernel-threads but theres alot of small seperated problems
+to solve on the other side. user-level threads are coming to solve this issue when they are creating
+a single thread for every arduino sensor and a "main thread" that have access to the whole collected data.
+
+
+Task 2:
+When the chrome creating single process for every tab it can cause the computer to be very slow 
+because "invisible tabs" will take part in the update-cycle while stopping "computer active tasks.
+
+
+
+Task 3:
+
+
+Task 4:
+real time contain the real clock time between the last beat for example if we started to count on 12:00:00:00
+and now the time is 12:00:00:30 the real time diff will be 00:00:00:30 while the virtual time will be always <= than the
+real one and count only the "Neto" time in task.
+
+in our user-threaded library we are using virtual time to count how much time passed for every thread
+we are using virtual time because we want to measure the time that the thread run 
+if we were used the real time we will get a fixed time that passed from the time that the stopper started to the time it stopped.
+
+
