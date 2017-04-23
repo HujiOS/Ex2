@@ -100,8 +100,8 @@ void switchThreads(int code)
     _runningThread = *_readyThreads.begin();
     _readyThreads.erase(_readyThreads.begin());
     reSyncBlocked(_runningThread -> tid());
-//    cout << "now in " << _runningThread -> tid() << endl;
-    _runningThread->loadBuffer();               //DOES IT MATTER? the order
+    cout << "now in " << _runningThread -> tid() << endl;
+    _runningThread->loadBuffer();
 
     if (setitimer (ITIMER_VIRTUAL, &_itTimer, NULL)) {
         error_log(FATAL_ERR,"setitimer error.");

@@ -34,7 +34,8 @@ When the chrome creates a single process for every tab it may cause the computer
 because "invisible tabs" will take part in the process-cycle while stopping other computer active tasks.
 Kernel-level threads would be quicker as the "idle time" would be divided between threads in the same process.
 On the other hand, Kernel-Level threads would make the browser slower, as only one process would run ALL open
-("invisible") tabs. Multiple processes would make the browser run faster, as
+("invisible") tabs. Multiple processes would make the browser run faster, as each tab will get equal running time
+from the computer, and they won't have to share only one process.
 
 
 
