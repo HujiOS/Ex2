@@ -100,7 +100,9 @@ void switchThreads(int code)
     _runningThread = *_readyThreads.begin();
     _readyThreads.erase(_readyThreads.begin());
     reSyncBlocked(_runningThread -> tid());
-    _runningThread->loadBuffer();
+//    cout << "now in " << _runningThread -> tid() << endl;
+    _runningThread->loadBuffer();               //DOES IT MATTER? the order
+
     if (setitimer (ITIMER_VIRTUAL, &_itTimer, NULL)) {
         error_log(FATAL_ERR,"setitimer error.");
     }
@@ -147,7 +149,7 @@ void removeThreadFromBlocks(spThread* thread){
             ; ++rdy){
         if(*rdy == thread){
             _readyThreads.erase(rdy);
-            return;
+            break;
         }
     }
     for(auto blk = _blockThreads.begin()
@@ -186,16 +188,12 @@ void unblockSignal(){
 void reSyncBlocked(int tid){
     for(auto &k : _blockThreads){
         if(k->reSync(tid)){
-            cout << "founded resynced thread " << k->tid() << endl;
+//            cout << "founded resynced thread " << k->tid() << endl;
             removeThreadFromBlocks(k);
             _readyThreads.push_back(k);
         }
     }
 }
-
-
-
-
 
 
 ///////////////////////////////////////////////////////////////////
@@ -336,10 +334,12 @@ int uthread_block(int tid){
     thread -> block();
     removeThreadFromBlocks(thread);
     _blockThreads.push_back(thread);
-    if(tid == _runningThread->tid()){
-       raise(SIGVTALRM);//switchThreads(1); //##### A BETTER WAY TO DO THIS? SIGNALS?
-    }
+
     unblockSignal();
+    if(tid == _runningThread->tid()){
+        _runningThread = nullptr;
+        raise(SIGVTALRM);//switchThreads(1); //##### A BETTER WAY TO DO THIS? SIGNALS?
+    }
     return SUCC;
 }
 
@@ -396,9 +396,9 @@ int uthread_sync(int tid){
     blockSignal();
     _runningThread->sync(tid);
     _blockThreads.push_back(_runningThread);
-    raise(SIGVTALRM);//switchThreads(0); //##### A BETTER WAY TO DO THIS? SIGNALS?
+    _runningThread = nullptr;
     unblockSignal();
-
+    raise(SIGVTALRM);//switchThreads(0); //##### A BETTER WAY TO DO THIS? SIGNALS?
     return SUCC;
 }
 

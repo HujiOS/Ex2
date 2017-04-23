@@ -3,7 +3,7 @@
 //
 #ifndef SPTHREAD_C
 #define SPTHREAD_C
-#include <stdio.h>
+#include <iostream>
 #include <setjmp.h>
 #include <signal.h>
 #include <unistd.h>
@@ -74,6 +74,7 @@ void spThread::setDep(int tid){
 }
 
 void spThread::sync(int tid){
+//    cout << "syncing " << _tid << "to" << tid<< endl;
     _status = BLOCKED;
     _relies_on = tid;
 }
@@ -83,8 +84,10 @@ void spThread::sync(int tid){
  */
 bool spThread::reSync(int tid){
     if(_relies_on == tid){
+//        cout << "resyncing " << _tid << "from" << tid << endl;
         _relies_on = -1;
         if(_blocked){
+//            cout << "still in blocked cause its blocked"<< endl;
             return false;
         }
         _status = WAITING;
@@ -94,6 +97,7 @@ bool spThread::reSync(int tid){
 }
 
 void spThread::block(){
+//    cout << "blocking " << _tid << endl;
     _status = BLOCKED;
     _blocked = true;
 }
@@ -103,6 +107,7 @@ void spThread::block(){
  * false otherwise
  */
 bool spThread::unblock(){
+//    cout << "unblocking " << _tid << endl;
     _blocked = false;
     if(_relies_on == -1){
         _status = WAITING;

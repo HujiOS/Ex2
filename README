@@ -21,17 +21,20 @@ ANSWERS:
 
 Task1:
 - create a multi-threaded task on arduino micro-controller.
-when im trying to write a program to my small arduino, a program that combine more than one sensor
+when I'm trying to write a program to my small arduino, a program that combines more than one sensor
 I will prefer to use user-thread system.
 
-the advantage overhere is that the os doesnt support kernel-threads but theres alot of small seperated problems
-to solve on the other side. user-level threads are coming to solve this issue when they are creating
+the advantage here is that the os doesnt support kernel-threads but theres alot of small seperated problems
+to solve on the other side. user-level threads help solve this issue when they are creating
 a single thread for every arduino sensor and a "main thread" that have access to the whole collected data.
 
 
 Task 2:
-When the chrome creating single process for every tab it can cause the computer to be very slow 
-because "invisible tabs" will take part in the update-cycle while stopping "computer active tasks.
+When the chrome creates a single process for every tab it may cause the computer to be very slow
+because "invisible tabs" will take part in the process-cycle while stopping other computer active tasks.
+Kernel-level threads would be quicker as the "idle time" would be divided between threads in the same process.
+On the other hand, Kernel-Level threads would make the browser slower, as only one process would run ALL open
+("invisible") tabs. Multiple processes would make the browser run faster, as
 
 
 
@@ -39,12 +42,15 @@ Task 3:
 
 
 Task 4:
-real time contain the real clock time between the last beat for example if we started to count on 12:00:00:00
-and now the time is 12:00:00:30 the real time diff will be 00:00:00:30 while the virtual time will be always <= than the
-real one and count only the "Neto" time in task.
+real time is the external measure of time,
+the amount of "ticks" that happen in the real world started counting time from
+12:00:00:00 and now the time is 12:00:00:30 the real time diff will be 00:00:00:30
+while the virtual time will be always <= than the real one and count only the "Neto" time spent in task.
+
+An example of usage for this kind of timing is to measure what time is it.
 
 in our user-threaded library we are using virtual time to count how much time passed for every thread
-we are using virtual time because we want to measure the time that the thread run 
-if we were used the real time we will get a fixed time that passed from the time that the stopper started to the time it stopped.
-
-
+we are using virtual time because we want to measure the time that the thread runs
+if we used the real time we would get a fixed time that passed from the time that the stopper
+started to the time it stopped. We can use this "virtual time" to create "User level threads" for example,
+if we want to divide the time the thread is being used for different tasks.
