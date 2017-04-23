@@ -40,6 +40,11 @@ from the computer, and they won't have to share only one process.
 
 
 Task 3:
+Every key press is an i/o interrupt while writing the command - The OS handles it, and sends appropriate signals
+to the shell. Then as enter is pressed the KILL command sends a signal from the shell to Shotwell(through the OS)
+that it should terminate (SIGTERM)
+SIGRTMIN
+SIGRT
 
 
 Task 4:
