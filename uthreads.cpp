@@ -337,6 +337,7 @@ int uthread_block(int tid){
 
     unblockSignal();
     if(tid == _runningThread->tid()){
+        _runningThread -> saveBuffer();
         _runningThread = nullptr;
         raise(SIGVTALRM);//switchThreads(1); //##### A BETTER WAY TO DO THIS? SIGNALS?
     }
@@ -396,6 +397,7 @@ int uthread_sync(int tid){
     blockSignal();
     _runningThread->sync(tid);
     _blockThreads.push_back(_runningThread);
+    _runningThread -> saveBuffer();
     _runningThread = nullptr;
     unblockSignal();
     raise(SIGVTALRM);//switchThreads(0); //##### A BETTER WAY TO DO THIS? SIGNALS?
