@@ -143,12 +143,12 @@ int resolveId()
  * this function will terminate the main thread, free all the memory and etc.
  */
 int mainthread_terminate(){
-    cout << "main terminate " << endl;
+//    cout << "main terminate " << endl;
     for(auto thread : _threads){
         cout << thread.first << "\t";
         delete thread.second;
     }
-    cout << "========" << endl;
+//    cout << "========" << endl;
     return SUCC;
 }
 
@@ -211,8 +211,9 @@ void unblockSignal(){
         return;
     }
     isblocked = false;
-    sigprocmask(SIG_UNBLOCK, &_set, NULL);       //unblock signals
-
+    sigprocmask(0, NULL, &_set);
+    sigdelset(&_set, SIGVTALRM);
+    sigprocmask(SIG_SETMASK, &_set, NULL);      //unblock signals
     return;
 }
 
