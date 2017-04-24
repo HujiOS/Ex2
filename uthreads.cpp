@@ -49,32 +49,41 @@ void reSyncBlocked(int tid);
 void pauseMain(void){
     for(;;){}
 }
+
+/*
+ * this function return the status about out library
+ */
 void printStatus()
 {
+    cout << "Current thread is: " << _runningThread->tid() << endl;
     cout << "all threads:" << endl;
     for(auto thread:_threads)
     {
-        cout << thread.first << " ";
+        cout << thread.second->tid() << " " << thread.second << ", ";
     }
 
 
-    cout << "in ready:" << endl;
+    cout << endl << "in ready:";
     for(auto rthread:_readyThreads)
     {
-        cout << rthread -> tid() << endl;
+        cout << rthread -> tid() << " ";
     }
 
-    cout << "in blocked: " << endl;
+    cout << endl << "in blocked: " << " ";
     for(auto bthread:_blockThreads)
     {
-        cout << bthread -> tid() << endl;
+        cout << bthread -> tid() << " ";
     }
 
-    cout << "overall times: " << quantom_overall << endl;
-    cout << "running thread: " << _runningThread->tid() << endl;
+    cout << endl;
+
+//    cout << "overall times: " << quantom_overall << endl;
 
 }
-
+/*
+ * kind of a nice errors formatter, getting a code of the error and a string
+ * and print it to cerr.
+ */
 void error_log(int pCode, string tCode){
     switch(pCode){
         case INPUT_ERR:
@@ -87,12 +96,15 @@ void error_log(int pCode, string tCode){
             break;
     }
 }
-
+/*
+ * a function that switch threads its if the running thread exists it
+ * returns it to the ready threads and if it isnt it just take the next one
+ * from the ready list
+ */
 void switchThreads(int code)
 {
     quantom_overall++;
     blockSignal();
-    // case it is terminated?
     if(_runningThread != nullptr)
     {
         _runningThread->saveBuffer();// 1 is to be able to load it back on
@@ -101,7 +113,6 @@ void switchThreads(int code)
     _runningThread = *_readyThreads.begin();
     _readyThreads.erase(_readyThreads.begin());
     reSyncBlocked(_runningThread -> tid());
-//    cout << "now in " << _runningThread -> tid() << endl;
     _runningThread->loadBuffer();
 
     if (setitimer (ITIMER_VIRTUAL, &_itTimer, NULL)) {
@@ -110,6 +121,10 @@ void switchThreads(int code)
     unblockSignal();
 }
 
+/*
+ * this function will find the next id to spawn according to the current threads
+ * it will always take the lowest available id
+ */
 int resolveId()
 {
     int idToReturn = 0;
@@ -124,9 +139,10 @@ int resolveId()
     return idToReturn;
 }
 
-
+/*
+ * this function will terminate the main thread, free all the memory and etc.
+ */
 int mainthread_terminate(){
-//    printStatus();
     cout << "main terminate " << endl;
     for(auto thread : _threads){
         cout << thread.first << "\t";
@@ -136,6 +152,9 @@ int mainthread_terminate(){
     return SUCC;
 }
 
+/*
+ * this function will get an id of tid and return the thread with that id.
+ */
 spThread* getThreadById(int tid){
     map<int, spThread*>::iterator it = _threads.find(tid);
     if(it == _threads.end()){
@@ -144,6 +163,11 @@ spThread* getThreadById(int tid){
     return it->second;
 }
 
+/*
+ * this is a general function that deleting a specific thread pointer
+ * from every block to generalize we dont want to determine which
+ * lists contains the thread so we just remove it from both of them.
+ */
 void removeThreadFromBlocks(spThread* thread){
     for(auto rdy = _readyThreads.begin()
             ; rdy != _readyThreads.end()
@@ -163,7 +187,9 @@ void removeThreadFromBlocks(spThread* thread){
     }
 }
 
-
+/*
+ * this function will block the SIGVTALARM signal
+ */
 void blockSignal(){
     if(isblocked)
     {
@@ -176,26 +202,35 @@ void blockSignal(){
 
     return;
 }
-
+/*
+ * this function will unblock the SIGVTALARM signal
+ */
 void unblockSignal(){
     if(!isblocked)
     {
         return;
     }
     isblocked = false;
-
     sigprocmask(SIG_UNBLOCK, &_set, NULL);       //unblock signals
+
     return;
 }
 
+/*
+ * this function will be called before every thread running and
+ * will notify every blocked thread that thread #tid is running
+ * if this message will cause a status change of the calle we will change
+ * his position from blocked to ready.
+ */
 void reSyncBlocked(int tid){
-    for(auto &k : _blockThreads){
-        if(k->reSync(tid)){
-//            cout << "founded resynced thread " << k->tid() << endl;
-            removeThreadFromBlocks(k);
-            _readyThreads.push_back(k);
+    for (int index = 0; index < _blockThreads.size(); ++index){
+        if(_blockThreads[index]->reSync(tid)){
+            spThread* tmp = _blockThreads[index];
+            removeThreadFromBlocks(tmp);
+            _readyThreads.push_back(tmp);
         }
     }
+
 }
 
 
@@ -222,7 +257,6 @@ int uthread_init(int quantum_usecs){
     spThread* main = new spThread(&pauseMain, 0);
     _threads.insert(tPair(0, main));
     _runningThread = main;
-//    main -> setStatus(RUNNING);
 
     _segActions.sa_handler = &switchThreads;
 
@@ -237,11 +271,8 @@ int uthread_init(int quantum_usecs){
         error_log(FATAL_ERR,"setitimer error.");
     }
     if (sigaction(SIGVTALRM, &_segActions,NULL) < 0) {
-        printf("sigaction error.");
+        error_log(FATAL_ERR,"sigaction error.");
     }
-//    if (sigaction(SIGHUP, &_segActions,NULL) < 0) {
-//        printf("sigaction error.");
-//    }
     raise(SIGVTALRM);
     return SUCC;
 }
@@ -265,8 +296,8 @@ int uthread_spawn(void (*f)(void)){
         return FAIL;
     }
     spThread *tThread = new spThread(f, nId);
-    cout << "SPAWNED" << endl;
-    cout << tThread << endl;
+//    cout << "SPAWNED" << endl;
+//    cout << tThread << endl;
     _threads.insert(tPair(nId, tThread));
     _readyThreads.push_back(tThread);
     unblockSignal();
@@ -306,8 +337,8 @@ int uthread_terminate(int tid){
     reSyncBlocked(tid);
     _threads.erase(tid);
     removeThreadFromBlocks(thread);
-    cout << "TERMINATED" << endl;
-    cout << thread << endl;
+//    cout << "TERMINATED" << endl;
+//    cout << thread << endl;
     delete thread;
     unblockSignal();
     raise(SIGVTALRM);//switchThreads(0);   //Do we need the number? I think not. ##### A BETTER WAY TO DO THIS? SIGNALS?
@@ -401,6 +432,7 @@ int uthread_sync(int tid){
     // remove the block from ready and from block lists.
     blockSignal();
     _runningThread->sync(tid);
+    removeThreadFromBlocks(_runningThread);
     _blockThreads.push_back(_runningThread);
     _runningThread -> saveBuffer();
     _runningThread = nullptr;
@@ -442,7 +474,7 @@ int uthread_get_quantums(int tid){
     blockSignal();
     spThread *thread = getThreadById(tid);
     if(thread == nullptr){
-        cout << "cannot find " << tid << endl;
+//        cout << "cannot find " << tid << endl;
         error_log(INPUT_ERR,THREAD_NFOUND);
         unblockSignal();
         return FAIL;

@@ -56,3 +56,5 @@ rtest:
 val:
 	valgrind --show-leak-kinds=all --leak-check=full test
 
+jona:
+	mv libuthreads.a jon/ -f
