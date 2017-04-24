@@ -37,6 +37,7 @@ static vector<spThread*> _blockThreads;
 static spThread* _runningThread;
 static int quantom_overall = 0;
 static sigset_t _set;
+static sigset_t _orig;
 struct itimerval _itTimer;
 struct sigaction _segActions;
 static bool isblocked = false;
@@ -100,7 +101,7 @@ void switchThreads(int code)
     _runningThread = *_readyThreads.begin();
     _readyThreads.erase(_readyThreads.begin());
     reSyncBlocked(_runningThread -> tid());
-    cout << "now in " << _runningThread -> tid() << endl;
+//    cout << "now in " << _runningThread -> tid() << endl;
     _runningThread->loadBuffer();
 
     if (setitimer (ITIMER_VIRTUAL, &_itTimer, NULL)) {
@@ -169,9 +170,10 @@ void blockSignal(){
         return;
     }
     isblocked = true;
-    sigemptyset(&_set);
+    sigprocmask(0, NULL, &_set);
     sigaddset(&_set, SIGVTALRM);
     sigprocmask(SIG_SETMASK, &_set, NULL);       //block ^^^ signals from now on
+
     return;
 }
 
@@ -181,6 +183,7 @@ void unblockSignal(){
         return;
     }
     isblocked = false;
+
     sigprocmask(SIG_UNBLOCK, &_set, NULL);       //unblock signals
     return;
 }
@@ -211,6 +214,8 @@ int uthread_init(int quantum_usecs){
         error_log(INPUT_ERR, QUANTUM_USEC);
         return FAIL;
     }
+
+    sigemptyset(&_set);
 
 //  init var
     // creating the main thread and adding it to the list

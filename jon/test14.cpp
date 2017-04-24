@@ -152,7 +152,7 @@ int main()
     uthread_block(t3);
 
     int t4 = uthread_spawn(thread4);
-    wait_quantums(200); // let t4 call sync(3)
+    wait_quantums(2); // let t4 call sync(3)
     uthread_block(t4);
 
     uthread_resume(t3);
