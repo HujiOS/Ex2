@@ -116,6 +116,5 @@ int uthread_get_total_quantums();
  * Return value: On success, return the number of quantums of the thread with ID tid. On failure, return -1.
 */
 int uthread_get_quantums(int tid);
-
 #endif
 

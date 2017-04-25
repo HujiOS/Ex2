@@ -6,6 +6,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <iostream>
 #include "uthreads.h"
 
 
@@ -19,8 +20,14 @@ bool thread_2_after_sync = false;
 
 void halt()
 {
+    int currTid = uthread_get_tid();
     while (true)
-    {}
+    {
+        if(currTid == uthread_get_tid()){
+            std::cout << uthread_get_tid() << std::endl;
+            currTid = -1;
+        }
+    }
 }
 
 /*
@@ -64,6 +71,7 @@ void thread3()
 
 void thread4()
 {
+    printStatus();
     uthread_sync(3);
 
     // here, thread4 is back from sync before it is resumed - error
