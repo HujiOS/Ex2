@@ -6,7 +6,6 @@
 
 #include <cstdio>
 #include <cstdlib>
-#include <iostream>
 #include "uthreads.h"
 
 
@@ -20,14 +19,8 @@ bool thread_2_after_sync = false;
 
 void halt()
 {
-    int currTid = uthread_get_tid();
     while (true)
-    {
-        if(currTid == uthread_get_tid()){
-            std::cout << uthread_get_tid() << std::endl;
-            currTid = -1;
-        }
-    }
+    {}
 }
 
 /*
@@ -51,6 +44,7 @@ void thread1()
     if (thread_2_after_sync)
     {
         printf(RED "ERROR - thread resumed before waiting to sync\n" RESET);
+        exit(1);
     }
 
     halt();
@@ -71,7 +65,6 @@ void thread3()
 
 void thread4()
 {
-    printStatus();
     uthread_sync(3);
 
     // here, thread4 is back from sync before it is resumed - error
@@ -144,7 +137,7 @@ int main()
     wait_quantums(2); // give t2 a chance to get back, which is an error
 
     uthread_resume(t1); // t1 will make sure that t2 didn't come back from sync.
-	
+
 
     // case 2:
     // thread 4 call sync(3)
@@ -164,7 +157,8 @@ int main()
     uthread_block(t4);
 
     uthread_resume(t3);
-    wait_quantums(200); // let thread4 a chance to get back, which is an error
+    wait_quantums(2); // let thread4 a chance to get back, which is an error
+
 
     printf(GRN "SUCCESS\n" RESET);
     uthread_terminate(0);

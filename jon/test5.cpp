@@ -4,7 +4,6 @@
  **********************************************/
 
 #include <cstdio>
-#include <iostream>
 #include "uthreads.h"
 
 #define GRN "\e[32m"
@@ -31,13 +30,16 @@ int next_thread()
 void thread()
 {
     uthread_sync(next_thread());
+
     uthread_sync(next_thread());
+
     uthread_block(uthread_get_tid());
 
-    for (int i = 0; i < 10000; i++)
+    for (int i = 0; i < 50; i++)
     {
         uthread_resume(next_thread());
     }
+
     thread_status[uthread_get_tid()] = DONE;
 
     halt();
@@ -67,13 +69,10 @@ int main()
     {
         thread_status[i] = RUN;
     }
-    int i = uthread_get_total_quantums();
+
     while (!all_done())
     {
-        if( uthread_get_total_quantums() > i){
-            uthread_resume(1);
-            i = uthread_get_total_quantums();
-        }
+        uthread_resume(1);
     }
 
     printf(GRN "SUCCESS\n" RESET);

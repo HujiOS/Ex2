@@ -99,6 +99,11 @@ public:
      */
     bool unblock();
 
+
+    /**
+     * returns the dependency of this thread
+     */
+    int relies_on();
     /*
      * returns the tid of the current thread
      */

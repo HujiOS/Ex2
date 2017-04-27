@@ -55,7 +55,17 @@ void pauseMain(void){
  */
 void printStatus()
 {
-    cout << "Current thread is: " << _runningThread->tid() << endl;
+    cout << endl;
+    cout << endl;
+    if (_runningThread)
+    {
+        cout << "Current thread is: " << _runningThread->tid() << endl;
+    } else
+    {
+        cout << "running is null " << endl;
+    }
+
+    cout << "Current quant: " << quantom_overall << endl;
     cout << "all threads:" << endl;
     for(auto thread:_threads)
     {
@@ -72,12 +82,20 @@ void printStatus()
     cout << endl << "in blocked: " << " ";
     for(auto bthread:_blockThreads)
     {
-        cout << bthread -> tid() << " ";
+        cout <<endl;
+        if(bthread -> relies_on() == -1)
+        {
+            cout << bthread -> tid() << " is blocked" <<endl;
+        } else{
+            cout << bthread -> tid() << " is synced to" << bthread -> relies_on()  <<endl;
+        }
+
+
     }
 
     cout << endl;
-
-//    cout << "overall times: " << quantom_overall << endl;
+    cout << endl;
+    cout << endl;
 
 }
 /*
@@ -101,24 +119,39 @@ void error_log(int pCode, string tCode){
  * returns it to the ready threads and if it isnt it just take the next one
  * from the ready list
  */
+
 void switchThreads(int code)
 {
+//    cout << "switchthreads" <<endl;
     quantom_overall++;
     blockSignal();
+
+    cout << "PRECHANGE" <<endl;
+    printStatus();
+
+
     if(_runningThread != nullptr)
     {
         _runningThread->saveBuffer();// 1 is to be able to load it back on
         _readyThreads.push_back(_runningThread);
     }
-    _runningThread = *_readyThreads.begin();
+
+
+
+    _runningThread = _readyThreads.front();
+
     _readyThreads.erase(_readyThreads.begin());
     reSyncBlocked(_runningThread -> tid());
-    _runningThread->loadBuffer();
 
+    cout << "POSTCHAN" <<endl;
+    printStatus();
+
+    _runningThread->loadBuffer();
     if (setitimer (ITIMER_VIRTUAL, &_itTimer, NULL)) {
         error_log(FATAL_ERR,"setitimer error.");
     }
     unblockSignal();
+
 }
 
 /*
@@ -169,6 +202,7 @@ spThread* getThreadById(int tid){
  * lists contains the thread so we just remove it from both of them.
  */
 void removeThreadFromBlocks(spThread* thread){
+//    cout << "*removethread from blocks*" <<endl;
     for(auto rdy = _readyThreads.begin()
             ; rdy != _readyThreads.end()
             ; ++rdy){
@@ -224,12 +258,18 @@ void unblockSignal(){
  * his position from blocked to ready.
  */
 void reSyncBlocked(int tid){
+    vector<int> l;
     for (int index = 0; index < _blockThreads.size(); ++index){
         if(_blockThreads[index]->reSync(tid)){
-            spThread* tmp = _blockThreads[index];
-            removeThreadFromBlocks(tmp);
-            _readyThreads.push_back(tmp);
+            l.push_back(index);
         }
+    }
+//    cout <<"FROM RESYNC" <<endl;
+    for(int i = 0; i< l.size();++i)
+    {
+        spThread* tmp = _blockThreads[i];
+        removeThreadFromBlocks(tmp);
+        _readyThreads.push_back(tmp);
     }
 
 }
@@ -245,6 +285,7 @@ void reSyncBlocked(int tid){
  * @return SUCCESS if init successfuly, otherwise FAIL
  */
 int uthread_init(int quantum_usecs){
+//    cout << "init init init \n" <<endl;
     // check if the given number is positive
     if(quantum_usecs <= 0){
         error_log(INPUT_ERR, QUANTUM_USEC);
@@ -289,6 +330,7 @@ int uthread_init(int quantum_usecs){
  * On failure, return -1.
 */
 int uthread_spawn(void (*f)(void)){
+//    cout << "spawn \n\n" <<endl;
     blockSignal();
     int nId = resolveId();
     // cannot allocate id
@@ -319,6 +361,7 @@ int uthread_spawn(void (*f)(void)){
  * thread is terminated, the function does not return.
 */
 int uthread_terminate(int tid){
+//    cout << "TERMINATE\n" <<endl;
 //    cout << "Terminating " << tid << endl;
     if(tid == 0){
         mainthread_terminate();
@@ -357,6 +400,7 @@ int uthread_terminate(int tid){
  * Return value: On success, return 0. On failure, return -1.
 */
 int uthread_block(int tid){
+//    cout << "THREADBLOCK\n" <<endl;
     // check if this thread exists
     spThread* thread = getThreadById(tid);
     if(thread == nullptr){
@@ -397,6 +441,7 @@ int uthread_resume(int tid){
     // remove the block from ready and from block lists.
     blockSignal();
     if(thread -> unblock()){
+//        cout <<"RESUMING" << endl;
         removeThreadFromBlocks(thread);
         _readyThreads.push_back(thread);
     }
@@ -417,6 +462,7 @@ int uthread_resume(int tid){
  * Return value: On success, return 0. On failure, return -1.
 */
 int uthread_sync(int tid){
+//    cout << "THREADSYNC\n" <<endl;
     spThread* thread = getThreadById(tid);
     if(thread == nullptr){
         error_log(INPUT_ERR,THREAD_NFOUND);
@@ -472,6 +518,7 @@ int uthread_get_total_quantums(){
  * Return value: On success, return the number of quantums of the thread with ID tid. On failure, return -1.
 */
 int uthread_get_quantums(int tid){
+//    cout << "GETQUANTS" <<endl;
     blockSignal();
     spThread *thread = getThreadById(tid);
     if(thread == nullptr){

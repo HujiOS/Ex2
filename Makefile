@@ -19,6 +19,7 @@ TARSRCS=$(LIBSRC) Makefile README
 
 all: test tara ctest
 
+
 libuthreads.a: $(LIBOBJ)
 	$(AR) $(ARFLAGS) $@ $^
 	$(RANLIB) $@
@@ -56,5 +57,3 @@ rtest:
 val:
 	valgrind --show-leak-kinds=all --leak-check=full test
 
-jona:
-	mv libuthreads.a jon/ -f

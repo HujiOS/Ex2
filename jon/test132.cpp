@@ -52,7 +52,6 @@ void check_sig_mask(const sigset_t& expected)
         if (memcmp(&expected, &actual, sizeof(sigset_t)) != 0)
         {
             printf(RED "ERROR - sigmask changed\n" RESET);
-//            exit(1);
         }
 
         // in the first 10 iterations let the thread stop because of sync / block.
@@ -142,7 +141,6 @@ int main()
     if (t1 == -1 || t2 == -1 || t3 == -1)
     {
         printf(RED "ERROR - threads spawning failed\n" RESET);
-        exit(1);
     }
 
 

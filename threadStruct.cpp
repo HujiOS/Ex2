@@ -46,6 +46,11 @@ address_t spThreads::trans_address(address_t addr)
 
 #endif
 
+int spThread::relies_on()
+{
+    return _relies_on;
+}
+
 /**
  * after running function, saving the location of the function
  */
@@ -97,7 +102,6 @@ bool spThread::reSync(int tid){
 }
 
 void spThread::block(){
-//    cout << "blocking " << _tid << endl;
     _status = BLOCKED;
     _blocked = true;
 }
@@ -107,7 +111,11 @@ void spThread::block(){
  * false otherwise
  */
 bool spThread::unblock(){
-//    cout << "unblocking " << _tid << endl;
+
+    if(!_blocked)
+    {
+        return false;
+    }
     _blocked = false;
     if(_relies_on == -1){
         _status = WAITING;
