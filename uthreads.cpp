@@ -69,7 +69,7 @@ void printStatus()
     cout << "all threads:" << endl;
     for(auto thread:_threads)
     {
-        cout << thread.second->tid() << " " << thread.second << ", ";
+        thread.second->status();
     }
 
     cout << endl << "in ready:";

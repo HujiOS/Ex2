@@ -113,6 +113,11 @@ public:
      * return the number of qunatoms that passed
      */
     int getQuant();
+	
+	/*
+     * print Thread status
+     */
+    void status();
 
 private:
     // represent the tid that this thread synced to it.

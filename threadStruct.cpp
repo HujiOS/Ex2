@@ -132,5 +132,13 @@ int spThread::getQuant(){
     return _quant;
 }
 
+void spThread::status(){
+	std::cout << "Thread number :" << _tid << std::endl;
+	if(_status != WAITING){
+		std::cout << "Synced to " << _relies_on;
+		std::cout << "Blocked? " << _blocked << std::endl;
+	}
+}
+
 
 #endif
