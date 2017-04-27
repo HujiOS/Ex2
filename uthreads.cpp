@@ -72,12 +72,12 @@ void printStatus()
         cout << thread.second->tid() << " " << thread.second << ", ";
     }
 
-
     cout << endl << "in ready:";
     for(auto rthread:_readyThreads)
     {
         cout << rthread -> tid() << " ";
     }
+
 
     cout << endl << "in blocked: " << " ";
     for(auto bthread:_blockThreads)
