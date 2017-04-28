@@ -37,7 +37,7 @@ static vector<spThread*> _blockThreads;
 static spThread* _runningThread;
 static int quantom_overall = 0;
 static sigset_t _set;
-static sigset_t _orig;
+static vector<sigset_t *> _origs;
 struct itimerval _itTimer;
 struct sigaction _segActions;
 static bool isblocked = false;
@@ -211,32 +211,49 @@ void removeThreadFromBlocks(spThread* thread){
 /*
  * this function will block the SIGVTALARM signal
  */
-sigset_t blockSignal(){
-//    if(isblocked)
-//    {
-//        return;
-//    }
-//    isblocked = true;
+void blockSignal(){
+    if(isblocked)
+    {
+        return;
+    }
+    isblocked = true;
+
+    sigprocmask(SIG_BLOCK, &_set, NULL);       //block ^^^ signals from now on
+
 //    sigprocmask(0, NULL, &_set);
 //    sigaddset(&_set, SIGVTALRM);
 //    sigprocmask(SIG_SETMASK, &_set, NULL);       //block ^^^ signals from now on
-    sigset_t tmp;
-    sigprocmask(SIG_BLOCK, _set, tmp);
-    return tmp;
+
+
+//
+//
+//    sigset_t* tmp = new sigset_t;
+//    sigemptyset(tmp);
+//    sigprocmask(0, NULL, tmp);
+//    sigprocmask(SIG_BLOCK, &_set, NULL);
+//    _origs.push_back(tmp);
+    return;
 }
 /*
  * this function will unblock the SIGVTALARM signal
  */
-void unblockSignal(sigset_t old){
-//    if(!isblocked)
-//    {
-//        return;
-//    }
-//    isblocked = false;
+void unblockSignal(){
+    if(!isblocked)
+    {
+        return;
+    }
+    isblocked = false;
 //    sigprocmask(0, NULL, &_set);
 //    sigdelset(&_set, SIGVTALRM);
 //    sigprocmask(SIG_SETMASK, &_set, NULL);      //unblock signals
-    sigprocmask(SIG_SETMASK, &old, NULL);
+
+
+//
+//    sigset_t *tmp = _origs.back();
+//    _origs.pop_back();
+//    sigprocmask(SIG_SETMASK, tmp, NULL);
+//    delete tmp;
+    sigprocmask(SIG_UNBLOCK, &_set, NULL);
     return;
 }
 
@@ -318,7 +335,7 @@ int uthread_init(int quantum_usecs){
  * On failure, return -1.
 */
 int uthread_spawn(void (*f)(void)){
-    sigset_t old = blockSignal();
+    blockSignal();
     int nId = resolveId();
     // cannot allocate id
     if(nId == -1 || _threads.size() == MAX_THREAD_NUM){
@@ -328,7 +345,7 @@ int uthread_spawn(void (*f)(void)){
     spThread *tThread = new spThread(f, nId);
     _threads.insert(tPair(nId, tThread));
     _readyThreads.push_back(tThread);
-    unblockSignal(old);
+    unblockSignal();
     return nId;
 }
 
@@ -360,12 +377,12 @@ int uthread_terminate(int tid){
     {
         _runningThread = nullptr;
     }
-    sigset_t old = blockSignal();
+    blockSignal();
     reSyncBlocked(tid);
     _threads.erase(tid);
     removeThreadFromBlocks(thread);
     delete thread;
-    unblockSignal(old);
+    unblockSignal();
     raise(SIGVTALRM);//switchThreads(0);   //Do we need the number? I think not. ##### A BETTER WAY TO DO THIS? SIGNALS?
     return SUCC;
 }
@@ -391,12 +408,12 @@ int uthread_block(int tid){
         return FAIL;
     }
     // remove the block from ready and from block lists.
-    sigset_t old = blockSignal();
+    blockSignal();
     thread -> block();
     removeThreadFromBlocks(thread);
     _blockThreads.push_back(thread);
 
-    unblockSignal(old);
+    unblockSignal();
     if(tid == _runningThread->tid()){
         _runningThread -> saveBuffer();
         _runningThread = nullptr;
@@ -419,12 +436,12 @@ int uthread_resume(int tid){
         return FAIL;
     }
     // remove the block from ready and from block lists.
-    sigset_t old = blockSignal();
+    blockSignal();
     if(thread -> unblock()){
         removeThreadFromBlocks(thread);
         _readyThreads.push_back(thread);
     }
-    unblockSignal(old);
+    unblockSignal();
     return SUCC;
 }
 
@@ -455,13 +472,13 @@ int uthread_sync(int tid){
         return FAIL;
     }
     // remove the block from ready and from block lists.
-    sigset_t old = blockSignal();
+    blockSignal();
     _runningThread->sync(tid);
     removeThreadFromBlocks(_runningThread);
     _blockThreads.push_back(_runningThread);
     _runningThread -> saveBuffer();
     _runningThread = nullptr;
-    unblockSignal(old);
+    unblockSignal();
     raise(SIGVTALRM);//switchThreads(0); //##### A BETTER WAY TO DO THIS? SIGNALS?
     return SUCC;
 }
@@ -496,14 +513,14 @@ int uthread_get_total_quantums(){
  * Return value: On success, return the number of quantums of the thread with ID tid. On failure, return -1.
 */
 int uthread_get_quantums(int tid){
-    sigset_t old = blockSignal();
+    blockSignal();
     spThread *thread = getThreadById(tid);
     if(thread == nullptr){
         error_log(INPUT_ERR,THREAD_NFOUND);
-        unblockSignal(old);
+        unblockSignal();
         return FAIL;
     }
-    unblockSignal(old);
+    unblockSignal();
     return thread->getQuant();
 }
 
