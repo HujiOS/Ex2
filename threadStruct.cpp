@@ -79,7 +79,6 @@ void spThread::setDep(int tid){
 }
 
 void spThread::sync(int tid){
-//    cout << "syncing " << _tid << "to" << tid<< endl;
     _status = BLOCKED;
     _relies_on = tid;
 }
@@ -89,10 +88,8 @@ void spThread::sync(int tid){
  */
 bool spThread::reSync(int tid){
     if(_relies_on == tid){
-//        cout << "resyncing " << _tid<< "from" << tid << endl;
         _relies_on = -1;
         if(_blocked){
-//            cout << "still in blocked cause its blocked"<< endl;
             return false;
         }
         _status = WAITING;
