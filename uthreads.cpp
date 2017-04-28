@@ -219,19 +219,6 @@ void blockSignal(){
     isblocked = true;
 
     sigprocmask(SIG_BLOCK, &_set, NULL);       //block ^^^ signals from now on
-
-//    sigprocmask(0, NULL, &_set);
-//    sigaddset(&_set, SIGVTALRM);
-//    sigprocmask(SIG_SETMASK, &_set, NULL);       //block ^^^ signals from now on
-
-
-//
-//
-//    sigset_t* tmp = new sigset_t;
-//    sigemptyset(tmp);
-//    sigprocmask(0, NULL, tmp);
-//    sigprocmask(SIG_BLOCK, &_set, NULL);
-//    _origs.push_back(tmp);
     return;
 }
 /*
@@ -243,16 +230,6 @@ void unblockSignal(){
         return;
     }
     isblocked = false;
-//    sigprocmask(0, NULL, &_set);
-//    sigdelset(&_set, SIGVTALRM);
-//    sigprocmask(SIG_SETMASK, &_set, NULL);      //unblock signals
-
-
-//
-//    sigset_t *tmp = _origs.back();
-//    _origs.pop_back();
-//    sigprocmask(SIG_SETMASK, tmp, NULL);
-//    delete tmp;
     sigprocmask(SIG_UNBLOCK, &_set, NULL);
     return;
 }
